@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { themes, themeFor } from "@/lib/theme";
-import { PlanningExperience } from "@/components/plan/PlanningExperience";
 import { JapanScene } from "@/components/themed/JapanScene";
+import { CountryClient } from "./CountryClient";
 
 type Params = { country: string };
 
@@ -25,21 +25,16 @@ export default async function CountryPage({ params }: { params: Promise<Params> 
   if (key === "japan") {
     return (
       <JapanScene kanji={meta.kanji} romaji={meta.romaji} subtitle={meta.subtitle}>
-        <PlanningExperience
-          theme={theme}
-          defaultPlaceholder={meta.placeholder}
-          initialDestination={meta.defaultDestination}
-        />
+        <CountryClient theme={theme} placeholder={meta.placeholder} defaultDestination={meta.defaultDestination} />
       </JapanScene>
     );
   }
 
-  // Fallback for future countries
   return (
     <div className="min-h-screen washi">
       <div className="max-w-5xl mx-auto px-4 py-12">
         <h1 className={`text-5xl ${theme.fontDisplayClass}`}>{country}</h1>
-        <PlanningExperience theme={theme} defaultPlaceholder={meta?.placeholder} initialDestination={meta?.defaultDestination ?? country} />
+        <CountryClient theme={theme} placeholder={meta?.placeholder} defaultDestination={meta?.defaultDestination ?? country} />
       </div>
     </div>
   );
