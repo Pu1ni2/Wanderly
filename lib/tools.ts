@@ -149,15 +149,40 @@ export type ToolReporter = (name: ToolName, status: "started" | "done" | "error"
  * The MCP boundary (server + client over InMemoryTransport) means tools/list
  * and tools/call go through real JSON-RPC framing, not a hardcoded switch.
  */
+const VALID_TOOLS: Set<string> = new Set([
+  "weather", "currency", "translator", "images",
+  "restaurants", "transport", "flights", "hotels",
+]);
+
+/**
+ * Sanitize tool names from gpt-oss models that occasionally leak their
+ * internal channel/role tokens (e.g. "transport<|channel|>commentary",
+ * "flights.commentary"). Strips everything after the first non-alphanum char
+ * and lowercases.
+ */
+function sanitizeToolName(raw: string): string {
+  const cleaned = raw.toLowerCase().split(/[^a-z0-9_]/)[0];
+  return cleaned;
+}
+
 export const dispatchTool = weave.op(async function dispatchTool(name: string, args: Record<string, unknown>, report?: ToolReporter): Promise<unknown> {
-  const tn = name as ToolName;
+  const clean = sanitizeToolName(name);
+  const tn = clean as ToolName;
+
+  if (!VALID_TOOLS.has(clean)) {
+    const detail = `unknown tool "${name}" (cleaned: "${clean}")`;
+    report?.(tn, "error", detail);
+    // Return a structured error so the planner can recover instead of throwing.
+    return { error: detail, validTools: Array.from(VALID_TOOLS) };
+  }
+
   report?.(tn, "started", JSON.stringify(args).slice(0, 120));
   try {
-    const result = await mcpCallTool(name, args);
+    const result = await mcpCallTool(clean, args);
     report?.(tn, "done");
     return result;
   } catch (err) {
     report?.(tn, "error", String(err));
-    throw err;
+    return { error: String(err) };
   }
 });
