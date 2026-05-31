@@ -1,18 +1,14 @@
 "use client";
-import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChatInput } from "@/components/ChatInput";
 import { AgentActivity } from "@/components/AgentActivity";
 import { ItineraryView } from "@/components/ItineraryView";
 import { AgentStatusProvider, useAgentStatus } from "@/components/avatars/AgentStatusContext";
 import { VoicePanel } from "@/components/voice/VoicePanel";
+import { AgentGrid } from "@/components/agents/AgentGrid";
+import { AgentLiveTicker } from "@/components/agents/AgentLiveTicker";
 import { usePlanStream } from "@/lib/usePlanStream";
 import type { Theme } from "@/lib/theme";
-
-const AgentStage = dynamic(
-  () => import("@/components/avatars/AgentStage").then((m) => m.AgentStage),
-  { ssr: false, loading: () => <StageFallback /> }
-);
 
 interface Props {
   theme: Theme;
@@ -42,6 +38,16 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
 
   return (
     <>
+      {/* Differentiation copy + voice */}
+      <div className="mb-5">
+        <div className="font-display text-[22px] sm:text-[26px] tracking-tight text-stone-900 leading-snug">
+          Watch the team work on your trip in real time.
+        </div>
+        <div className="text-[13px] text-stone-500 mt-1">
+          Every fact is sourced from a specialist. Nothing is invented from memory.
+        </div>
+      </div>
+
       <div className="mb-6">
         <VoicePanel
           accent={theme.accent}
@@ -55,6 +61,12 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
         />
       </div>
 
+      {/* Live agent feed (ticker) */}
+      <div className="mb-6">
+        <AgentLiveTicker />
+      </div>
+
+      {/* Two-column: input left, agent grid right */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-6 lg:gap-8">
         {/* Left column: input + side info */}
         <motion.div
@@ -95,28 +107,17 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
           <SideCard accent={theme.accent} />
         </motion.div>
 
-        {/* Right column: 3D stage */}
+        {/* Right column: agent grid */}
         <motion.div
           layout
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative order-1 lg:order-2 lg:sticky lg:top-6 self-start"
+          className="order-1 lg:order-2"
         >
-          <div className="relative">
-            <AgentStage height={420} />
-            <div className="absolute top-3 left-4 text-[10px] uppercase tracking-[0.32em] text-stone-500">
-              the team
-            </div>
-            {plan.running && (
-              <div className="absolute top-3 right-4 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.24em] text-red-700">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-700 pulse-dot" />
-                planning
-              </div>
-            )}
-          </div>
+          <AgentGrid />
         </motion.div>
       </div>
 
-      {/* Activity strip */}
+      {/* Activity strip — legacy text input feed (still useful for full pipeline) */}
       <AnimatePresence>
         {(plan.events.length > 0 || plan.running) && (
           <motion.div
@@ -156,7 +157,6 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
-
     </>
   );
 }
@@ -166,9 +166,9 @@ function SideCard({ accent }: { accent: string }) {
     <div className="rounded-3xl border bg-white/70 backdrop-blur p-5" style={{ borderColor: "var(--border)" }}>
       <div className="text-[10px] uppercase tracking-[0.32em] text-stone-500 mb-2">how the team works</div>
       <ol className="space-y-2.5 text-[13px] leading-relaxed text-stone-600">
-        <Step n="01" body="Orchestrator reads your request and routes it to a planner." accent={accent} />
-        <Step n="02" body="Planner fans out to specialists — flights, hotels, weather, food, transport — in parallel." accent={accent} />
-        <Step n="03" body="Critic verifies every number against the live data and the budget you set." accent={accent} />
+        <Step n="01" body="Voice or text routes to the right specialist in real time — every fact goes through a tool call, never invented from memory." accent={accent} />
+        <Step n="02" body="Specialists run in parallel: flights, hotels, weather, food, transport, currency." accent={accent} />
+        <Step n="03" body="Critic verifies every number against the live data and your budget." accent={accent} />
         <Step n="04" body="Writer hands you a clean, day-by-day itinerary you can act on." accent={accent} />
       </ol>
     </div>
@@ -181,35 +181,5 @@ function Step({ n, body, accent }: { n: string; body: string; accent: string }) 
       <span className="font-display text-[12px] tracking-tight pt-0.5" style={{ color: accent }}>{n}</span>
       <span>{body}</span>
     </li>
-  );
-}
-
-function StageFallback() {
-  return (
-    <div
-      className="rounded-3xl border overflow-hidden relative"
-      style={{
-        borderColor: "var(--border)",
-        height: 420,
-        background: "radial-gradient(ellipse at 50% 110%, #f7d6e0 0%, #f7efde 35%, #f4ecdc 70%, #ebe0c1 100%)",
-      }}
-    >
-      <div className="absolute inset-0 flex items-end justify-around pb-12">
-        {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-          <div
-            key={i}
-            className="rounded-full shimmer"
-            style={{
-              width: 28 + (i % 3) * 6,
-              height: 28 + (i % 3) * 6,
-              marginBottom: (i % 2) * 10,
-            }}
-          />
-        ))}
-      </div>
-      <div className="absolute top-3 left-4 text-[10px] uppercase tracking-[0.32em] text-stone-500">
-        the team
-      </div>
-    </div>
   );
 }
