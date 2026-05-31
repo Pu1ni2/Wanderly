@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Float, Text } from "@react-three/drei";
+import { Float, Text, Sparkles } from "@react-three/drei";
 import type * as THREE from "three";
 import type { AgentAvatar } from "./agents";
 import type { AgentStatus } from "@/lib/types";
@@ -23,22 +23,68 @@ export function Mascot({ avatar, position, status }: Props) {
 
   useFrame((_, dt) => {
     if (!groupRef.current) return;
+    const now = performance.now();
     if (isError) {
-      groupRef.current.position.x = position[0] + Math.sin(performance.now() * 0.04) * 0.1;
+      groupRef.current.position.x = position[0] + Math.sin(now * 0.04) * 0.1;
     } else {
       groupRef.current.position.x = position[0];
     }
     if (ringRef.current && isDone) {
-      const t = (performance.now() % 1200) / 1200;
+      const t = (now % 1200) / 1200;
       ringRef.current.scale.setScalar(1 + t * 0.6);
       const mat = ringRef.current.material as THREE.MeshBasicMaterial;
       mat.opacity = 0.8 * (1 - t);
     }
-    // gentle rotation when running
+    // Per-shape signature motion when running
     if (isRunning) {
-      groupRef.current.rotation.y += dt * 1.2;
+      const t = now / 1000;
+      switch (avatar.shape) {
+        case "airplane":
+          groupRef.current.rotation.z = Math.sin(t * 2.4) * 0.2;
+          groupRef.current.rotation.y += dt * 0.5;
+          break;
+        case "coin":
+          groupRef.current.rotation.y += dt * 4.0;
+          break;
+        case "lantern":
+          groupRef.current.rotation.z = Math.sin(t * 1.4) * 0.18;
+          break;
+        case "magnifier":
+          groupRef.current.rotation.z = Math.sin(t * 1.8) * 0.4;
+          groupRef.current.rotation.y += dt * 0.8;
+          break;
+        case "scroll":
+        case "book":
+          groupRef.current.rotation.y += dt * 1.4;
+          break;
+        case "pagoda":
+          // gentle stagger bob is implicit in Float; tiny rotation
+          groupRef.current.rotation.y += dt * 0.6;
+          break;
+        case "train":
+          groupRef.current.position.x = position[0] + Math.sin(t * 2.0) * 0.18;
+          break;
+        case "cloud":
+          groupRef.current.rotation.y += dt * 0.7;
+          break;
+        case "bowl":
+          groupRef.current.rotation.y += dt * 1.6;
+          break;
+        case "film":
+          groupRef.current.rotation.y += dt * 2.2;
+          break;
+        case "pen":
+          groupRef.current.rotation.z = Math.sin(t * 2.8) * 0.15;
+          break;
+        case "camera":
+          groupRef.current.rotation.y = Math.sin(t * 1.6) * 0.35;
+          break;
+        default:
+          groupRef.current.rotation.y += dt * 1.2;
+      }
     } else {
       groupRef.current.rotation.y *= 0.95;
+      groupRef.current.rotation.z *= 0.92;
     }
   });
 
@@ -54,6 +100,17 @@ export function Mascot({ avatar, position, status }: Props) {
       <Float {...floatProps}>
         <group ref={groupRef}>
           <Shape shape={avatar.shape} color={avatar.color} emissive={emissive} emissiveIntensity={emissiveIntensity} />
+          {isRunning && (
+            <Sparkles
+              count={18}
+              scale={1.6}
+              size={3.2}
+              speed={0.6}
+              opacity={0.9}
+              color={avatar.glow}
+              noise={1.2}
+            />
+          )}
           {isDone && (
             <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
               <ringGeometry args={[0.7, 0.78, 32]} />

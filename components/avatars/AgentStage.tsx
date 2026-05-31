@@ -1,6 +1,8 @@
 "use client";
-import { Canvas } from "@react-three/fiber";
-import { Environment, PerspectiveCamera } from "@react-three/drei";
+import { useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Environment, PerspectiveCamera, ContactShadows } from "@react-three/drei";
+import type * as THREE from "three";
 import { Mascot } from "./Mascot";
 import { AGENT_AVATARS, type AgentAvatar } from "./agents";
 import { useAgentStatus } from "./AgentStatusContext";
@@ -25,8 +27,22 @@ function layout(): Array<{ avatar: AgentAvatar; position: [number, number, numbe
   return [...backArc, ...frontArc];
 }
 
+function CameraDolly({ active }: { active: boolean }) {
+  const ref = useRef<THREE.PerspectiveCamera>(null);
+  useFrame(() => {
+    if (!ref.current) return;
+    const t = performance.now() / 1000;
+    const targetX = active ? Math.sin(t * 0.4) * 0.6 : 0;
+    const targetY = active ? 2.4 + Math.sin(t * 0.3) * 0.15 : 2.4;
+    ref.current.position.x += (targetX - ref.current.position.x) * 0.04;
+    ref.current.position.y += (targetY - ref.current.position.y) * 0.04;
+    ref.current.lookAt(0, 0.3, 0);
+  });
+  return <PerspectiveCamera ref={ref} makeDefault position={[0, 2.4, 6.5]} fov={42} />;
+}
+
 export function AgentStage({ height = 320 }: { height?: number }) {
-  const { statusOf } = useAgentStatus();
+  const { statusOf, running } = useAgentStatus();
   const items = layout();
 
   return (
@@ -39,12 +55,24 @@ export function AgentStage({ height = 320 }: { height?: number }) {
         background: "radial-gradient(ellipse at 50% 110%, #f7d6e0 0%, #f7efde 35%, #f4ecdc 70%, #ebe0c1 100%)",
       }}
     >
-      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, preserveDrawingBuffer: false }}>
-        <PerspectiveCamera makeDefault position={[0, 2.4, 6.5]} fov={42} />
-        <ambientLight intensity={0.65} />
-        <directionalLight position={[4, 6, 5]} intensity={1.1} castShadow={false} />
+      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, preserveDrawingBuffer: false }} shadows>
+        <CameraDolly active={running} />
+        <ambientLight intensity={0.55} />
+        <directionalLight position={[4, 6, 5]} intensity={1.0} castShadow />
         <directionalLight position={[-5, 3, 2]} intensity={0.3} color={"#bd0029"} />
         <Environment preset="apartment" environmentIntensity={0.5} />
+
+        {/* Floor — contact shadow gives mascots weight */}
+        <ContactShadows
+          position={[0, -0.95, 0]}
+          opacity={0.42}
+          scale={18}
+          blur={2.2}
+          far={4}
+          resolution={512}
+          color="#1c1b1f"
+        />
+
         {items.map(({ avatar, position }) => (
           <Mascot key={avatar.name} avatar={avatar} position={position} status={statusOf(avatar.name)} />
         ))}
