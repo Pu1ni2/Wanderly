@@ -24,7 +24,20 @@ const notoSerifJP = Noto_Serif_JP({
 
 export const metadata: Metadata = {
   title: "Wanderly — your multi-agent travel concierge",
-  description: "A team of AI specialists that plans, verifies, and self-corrects your trip.",
+  description:
+    "A team of AI specialists that plans, verifies, and self-corrects your trip. Talk to it. It listens, books nothing, and just hands you an itinerary that holds up.",
+  applicationName: "Wanderly",
+  keywords: ["travel planner", "AI travel", "multi-agent", "itinerary", "voice concierge"],
+  openGraph: {
+    title: "Wanderly — your multi-agent travel concierge",
+    description: "Plan a trip that holds up. A team of AI agents plans, verifies, and self-corrects.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wanderly — your multi-agent travel concierge",
+    description: "Plan a trip that holds up.",
+  },
 };
 
 export default function RootLayout({

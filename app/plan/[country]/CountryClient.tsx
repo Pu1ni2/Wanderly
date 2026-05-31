@@ -184,9 +184,29 @@ function Step({ n, body, accent }: { n: string; body: string; accent: string }) 
 
 function StageFallback() {
   return (
-    <div className="rounded-3xl border bg-white" style={{ borderColor: "var(--border)", height: 420 }}>
-      <div className="h-full flex items-center justify-center text-sm text-stone-500">
-        Preparing the agent stage…
+    <div
+      className="rounded-3xl border overflow-hidden relative"
+      style={{
+        borderColor: "var(--border)",
+        height: 420,
+        background: "radial-gradient(ellipse at 50% 110%, #f7d6e0 0%, #f7efde 35%, #f4ecdc 70%, #ebe0c1 100%)",
+      }}
+    >
+      <div className="absolute inset-0 flex items-end justify-around pb-12">
+        {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+          <div
+            key={i}
+            className="rounded-full shimmer"
+            style={{
+              width: 28 + (i % 3) * 6,
+              height: 28 + (i % 3) * 6,
+              marginBottom: (i % 2) * 10,
+            }}
+          />
+        ))}
+      </div>
+      <div className="absolute top-3 left-4 text-[10px] uppercase tracking-[0.32em] text-stone-500">
+        the team
       </div>
     </div>
   );

@@ -191,8 +191,11 @@ function Tile({ chapter, title, body }: { chapter: string; title: string; body: 
 
 function GlobeSkeleton() {
   return (
-    <div className="w-full aspect-square max-w-[560px] mx-auto flex items-center justify-center text-stone-500 text-sm">
-      Loading globe…
+    <div className="w-full aspect-square max-w-[560px] mx-auto relative">
+      <div className="absolute inset-[8%] rounded-full shimmer" style={{ filter: "blur(0.5px)" }} />
+      <div className="absolute inset-0 flex items-end justify-center pb-6 text-[10px] uppercase tracking-[0.3em] text-stone-500">
+        loading the world…
+      </div>
     </div>
   );
 }

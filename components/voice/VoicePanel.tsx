@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRealtimeSession, type OnToolResult, type VoiceState } from "./useRealtimeSession";
 
@@ -31,6 +31,26 @@ export function VoicePanel({ onPlanTrip, defaultDestination, variant = "inline",
     if (!transcriptRef.current) return;
     transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
   }, [transcript]);
+
+  const toggle = useCallback(() => {
+    if (state === "idle" || state === "error") start();
+    else if (state === "paused") resume();
+    else pause();
+  }, [state, start, pause, resume]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        toggle();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toggle]);
 
   const active = state !== "idle" && state !== "error";
   const headline = labelFor(state);
