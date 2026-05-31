@@ -53,6 +53,7 @@ export const MODELS = {
   critic:       "openai/gpt-oss-120b",
   writer:       "openai/gpt-oss-120b",
 
-  // OpenAI (via `client`) — vision-capable
-  placeVision:  "gpt-4o",
+  // W&B Inference (via `llm`) — vision-capable
+  // Override via OPENAI_REALTIME_MODEL-style env var if your account has a different slug.
+  placeVision:  process.env.WANDB_VISION_MODEL ?? "meta-llama/Llama-3.2-11B-Vision-Instruct",
 } as const;

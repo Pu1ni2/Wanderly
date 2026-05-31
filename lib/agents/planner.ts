@@ -38,8 +38,8 @@ When you are done gathering data, return the final itinerary as JSON only, match
 
 Return the JSON object alone — no prose, no code fences.`;
 
-// gpt-oss-120b on W&B serializes tool calls (one per round); give it room.
-const MAX_TOOL_ROUNDS = 12;
+// gpt-oss-120b on W&B serializes tool calls (one per round); give it headroom.
+const MAX_TOOL_ROUNDS = 18;
 
 export const planner = weave.op(async function planner(
   request: TripRequest,

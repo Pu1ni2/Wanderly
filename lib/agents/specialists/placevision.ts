@@ -1,6 +1,6 @@
 import { z } from "zod";
 import * as weave from "weave";
-import { client, MODELS } from "@/lib/openai";
+import { llm, MODELS } from "@/lib/openai";
 import type { PlaceVisionResult } from "@/lib/types";
 
 export interface PlaceVisionInput {
@@ -27,28 +27,38 @@ export const placeVision = weave.op(async function placeVision(input: PlaceVisio
     "Return confidence as a number between 0 and 1.",
     "Provide up to 3 alternates if you are not fully certain.",
     "If you cannot determine a place at all, return guess='unknown' with confidence 0.",
-    'Output JSON only: {"guess": "...", "confidence": 0.0, "alternates": ["...", "..."]}',
+    'Output JSON only — no prose, no code fences. Shape: {"guess": "...", "confidence": 0.0, "alternates": ["...", "..."]}',
   ].join(" ");
 
   for (let attempt = 0; attempt < 2; attempt++) {
-    const resp = await client.chat.completions.create({
+    // W&B Inference vision-capable model. Some vision models don't support
+    // response_format=json_object, so we instruct JSON in the prompt and parse
+    // defensively.
+    const resp = await llm.chat.completions.create({
       model: MODELS.placeVision,
       messages: [
         { role: "system", content: system },
         {
           role: "user",
           content: [
-            { type: "text", text: "What place is this photo most likely showing?" },
+            { type: "text", text: "What place is this photo most likely showing? Respond with JSON only." },
             { type: "image_url", image_url: { url: imageRef } },
           ],
         },
       ],
       temperature: 0.2,
-      response_format: { type: "json_object" },
+      max_tokens: 300,
     });
     const raw = resp.choices[0]?.message?.content ?? "";
+    // Strip code fences / leading prose to be tolerant of varied vision-model output formats.
+    const cleaned = raw.trim()
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/```\s*$/i, "");
+    // Pull the first {...} block in case the model wraps it in prose.
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    const candidate = match ? match[0] : cleaned;
     try {
-      return Schema.parse(JSON.parse(raw));
+      return Schema.parse(JSON.parse(candidate));
     } catch {
       if (attempt === 1) return { guess: "unknown", confidence: 0, alternates: [] };
     }

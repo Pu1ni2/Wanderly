@@ -1,13 +1,6 @@
 import type OpenAI from "openai";
 import * as weave from "weave";
-import { weather } from "@/lib/agents/specialists/weather";
-import { currency } from "@/lib/agents/specialists/currency";
-import { translator } from "@/lib/agents/specialists/translator";
-import { images } from "@/lib/agents/specialists/images";
-import { restaurants } from "@/lib/agents/specialists/restaurants";
-import { transport } from "@/lib/agents/specialists/transport";
-import { flights } from "@/lib/agents/specialists/flights";
-import { hotels } from "@/lib/agents/specialists/hotels";
+import { mcpCallTool } from "@/mcp/client";
 
 export type ToolName =
   | "weather"
@@ -151,23 +144,16 @@ export const SPECIALIST_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
 
 export type ToolReporter = (name: ToolName, status: "started" | "done" | "error", detail?: string) => void;
 
+/**
+ * Specialist tool dispatch — routes every call through the MCP client.
+ * The MCP boundary (server + client over InMemoryTransport) means tools/list
+ * and tools/call go through real JSON-RPC framing, not a hardcoded switch.
+ */
 export const dispatchTool = weave.op(async function dispatchTool(name: string, args: Record<string, unknown>, report?: ToolReporter): Promise<unknown> {
   const tn = name as ToolName;
   report?.(tn, "started", JSON.stringify(args).slice(0, 120));
   try {
-    let result: unknown;
-    const a = args as unknown;
-    switch (tn) {
-      case "weather":     result = await weather(a as Parameters<typeof weather>[0]); break;
-      case "currency":    result = await currency(a as Parameters<typeof currency>[0]); break;
-      case "translator":  result = await translator(a as Parameters<typeof translator>[0]); break;
-      case "images":      result = await images(a as Parameters<typeof images>[0]); break;
-      case "restaurants": result = await restaurants(a as Parameters<typeof restaurants>[0]); break;
-      case "transport":   result = await transport(a as Parameters<typeof transport>[0]); break;
-      case "flights":     result = await flights(a as Parameters<typeof flights>[0]); break;
-      case "hotels":      result = await hotels(a as Parameters<typeof hotels>[0]); break;
-      default: throw new Error(`Unknown tool: ${name}`);
-    }
+    const result = await mcpCallTool(name, args);
     report?.(tn, "done");
     return result;
   } catch (err) {
