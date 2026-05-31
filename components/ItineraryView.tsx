@@ -1,3 +1,5 @@
+"use client";
+import { motion } from "framer-motion";
 import type { Itinerary } from "@/lib/types";
 import { BudgetMeter } from "./BudgetMeter";
 import { CriticBadge } from "./CriticBadge";
@@ -39,9 +41,12 @@ export function ItineraryView({ itinerary, budgetUSD, attempts, verified, spoken
       </div>
 
       <div className="p-6 grid gap-4 sm:grid-cols-2">
-        {itinerary.days.map((d) => (
-          <div
+        {itinerary.days.map((d, i) => (
+          <motion.div
             key={d.day}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: i * 0.06 }}
             className="rounded-2xl border p-5 bg-[color:var(--bg)]"
             style={{ borderColor: "var(--border)" }}
           >
@@ -55,9 +60,9 @@ export function ItineraryView({ itinerary, budgetUSD, attempts, verified, spoken
               <h3 className={`font-medium text-lg ${displayFontClass}`}>{d.title ?? `Day ${d.day}`}</h3>
             </div>
             <ul className="space-y-1.5 text-[14px] text-[color:var(--ink-soft)]">
-              {d.items.map((it, i) => <li key={i} className="leading-relaxed">{it}</li>)}
+              {d.items.map((it, j) => <li key={j} className="leading-relaxed">{it}</li>)}
             </ul>
-          </div>
+          </motion.div>
         ))}
       </div>
 
