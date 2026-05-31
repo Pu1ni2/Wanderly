@@ -420,7 +420,6 @@ Test with a query like: *"Plan a 4-day trip to Doha, Qatar for 2 people with a $
 1. Open the live Vercel URL on the projector.
 2. **The wow opener (optional):** upload a photo of a recognizable spot, like a Charles River shot with the Boston skyline. Narrate: "I didn't even type a destination, I just gave it a picture. The Place Vision agent identified Boston, I confirm it, and the planning kicks off from there." Then add a budget.
 3. Or just type: *"Plan a 4-day trip to Doha for 2 people, budget $2500, with local food and what's happening this week."*
-3. Or just type: *"Plan a 4-day trip to Doha for 2 people, budget $2500, with local food and what's happening this week."*
 4. Narrate the **agent activity panel** as it runs: "the orchestrator parsed the request and chose to plan; now the specialists are firing in parallel — flights, hotels, weather, events; the planner assembled a draft; the critic just caught that we were $200 over budget and sent it back; the planner trimmed it; now it passes — verified."
 5. Show the final itinerary cards, the **budget meter** under the limit, and the **Verified / Re-planned** badge.
 6. Close with the roadmap slide: more specialists, voice input, deeper multi-retry.
