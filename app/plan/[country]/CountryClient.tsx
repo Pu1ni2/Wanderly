@@ -18,6 +18,7 @@ interface Props {
   theme: Theme;
   placeholder?: string;
   defaultDestination: string;
+  capital?: string;
 }
 
 export function CountryClient(props: Props) {
@@ -28,7 +29,7 @@ export function CountryClient(props: Props) {
   );
 }
 
-function Inner({ theme, placeholder, defaultDestination }: Props) {
+function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
   const { push, reset, setRunning } = useAgentStatus();
   const plan = usePlanStream({
     defaultDestination,
@@ -44,9 +45,10 @@ function Inner({ theme, placeholder, defaultDestination }: Props) {
       <div className="mb-6">
         <VoicePanel
           accent={theme.accent}
+          country={{ name: defaultDestination, capital }}
           defaultDestination={defaultDestination}
-          onPlanTrip={async (args) => {
-            // Reuse the same stream the text input would
+          onAgentEvent={(ev) => push(ev)}
+          onPlanFullTrip={async (args) => {
             await plan.start({ query: args.query, budgetUSD: args.budgetUSD });
             return { itinerary: { destination: defaultDestination, note: "Voice plan in progress" } };
           }}

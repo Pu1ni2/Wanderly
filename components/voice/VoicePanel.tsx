@@ -1,20 +1,25 @@
 "use client";
 import { useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRealtimeSession, type OnToolResult, type VoiceState } from "./useRealtimeSession";
+import { useRealtimeSession, type OnToolResult, type VoiceState, type VoiceCountry } from "./useRealtimeSession";
+import type { AgentEvent } from "@/lib/types";
 
 interface Props {
-  onPlanTrip?: (args: { query: string; budgetUSD?: number }) => Promise<OnToolResult>;
+  onPlanFullTrip?: (args: { query: string; budgetUSD?: number }) => Promise<OnToolResult>;
+  onAgentEvent?: (ev: AgentEvent) => void;
+  country?: VoiceCountry | null;
   defaultDestination?: string;
   variant?: "inline" | "slim";
   accent?: string;
 }
 
-export function VoicePanel({ onPlanTrip, defaultDestination, variant = "inline", accent = "#bd0029" }: Props) {
+export function VoicePanel({ onPlanFullTrip, onAgentEvent, country, defaultDestination, variant = "inline", accent = "#bd0029" }: Props) {
   const { state, error, transcript, micLevel, start, stop, pause, resume } = useRealtimeSession({
-    onPlanTrip: async (args) => {
+    country: country ?? (defaultDestination ? { name: defaultDestination } : null),
+    onAgentEvent,
+    onPlanFullTrip: async (args) => {
       const q = args.query || (defaultDestination ? `Plan a trip to ${defaultDestination}` : "");
-      const local = onPlanTrip ? await onPlanTrip({ query: q, budgetUSD: args.budgetUSD }) : null;
+      const local = onPlanFullTrip ? await onPlanFullTrip({ query: q, budgetUSD: args.budgetUSD }) : null;
       if (local) return local;
       const resp = await fetch("/api/voice/plan", {
         method: "POST",

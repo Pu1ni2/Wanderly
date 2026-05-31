@@ -24,6 +24,7 @@ export default async function CountryPage({ params }: { params: Promise<Params> 
           theme={theme}
           placeholder='Try: "Plan a 4-day trip to Tokyo for 2 people, $2500, with vegetarian food and onsen."'
           defaultDestination="Japan"
+          capital="Tokyo"
         />
       </JapanScene>
     );
@@ -41,6 +42,7 @@ export default async function CountryPage({ params }: { params: Promise<Params> 
         theme={theme}
         placeholder={`Try: "Plan a 5-day trip to ${meta.name} for 2 people, $2500, local food and culture."`}
         defaultDestination={meta.name}
+        capital={meta.capital}
       />
     </CountryScene>
   );
