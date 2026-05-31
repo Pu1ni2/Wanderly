@@ -1,6 +1,15 @@
 import OpenAI from "openai";
 
-export const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let _client: OpenAI | null = null;
+
+export const client = new Proxy({} as OpenAI, {
+  get(_target, prop, receiver) {
+    if (!_client) {
+      _client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY ?? "missing-key-set-OPENAI_API_KEY" });
+    }
+    return Reflect.get(_client, prop, receiver);
+  },
+});
 
 export const MODELS = {
   orchestrator: "gpt-4o-mini",
