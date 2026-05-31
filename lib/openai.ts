@@ -1,5 +1,7 @@
 import OpenAI from "openai";
-import { wrapOpenAI } from "weave";
+// Note: `wrapOpenAI` from weave conflicts with openai SDK v6 under parallel
+// calls (Body already read). We trace at the agent-function level via
+// `weave.op` wrappers instead — the trace tree is built from those.
 
 /**
  * `client` — the OpenAI SDK pointed at OpenAI itself.
@@ -27,16 +29,13 @@ let _llm: OpenAI | null = null;
 export const llm = new Proxy({} as OpenAI, {
   get(_target, prop, receiver) {
     if (!_llm) {
-      const raw = new OpenAI({
+      _llm = new OpenAI({
         baseURL: "https://api.inference.wandb.ai/v1",
         apiKey: process.env.WANDB_API_KEY ?? "missing-key-set-WANDB_API_KEY",
-        // The W&B project header is optional; useful for usage tracking when set.
         defaultHeaders: process.env.WANDB_PROJECT
           ? { "OpenAI-Project": process.env.WANDB_PROJECT }
           : undefined,
       });
-      // weave's bundled types lag behind openai SDK; bridge via unknown.
-      _llm = wrapOpenAI(raw as unknown as Parameters<typeof wrapOpenAI>[0]) as unknown as OpenAI;
     }
     return Reflect.get(_llm as object, prop, receiver);
   },

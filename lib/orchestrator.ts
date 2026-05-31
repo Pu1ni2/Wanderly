@@ -1,4 +1,5 @@
 import { z } from "zod";
+import * as weave from "weave";
 import { MODELS } from "@/lib/openai";
 import { callJSON } from "@/lib/util/json";
 import { placeVision } from "@/lib/agents/specialists/placevision";
@@ -71,6 +72,31 @@ const ParseSchema = z.object({
 
 const PLACE_VISION_THRESHOLD = 0.7;
 
+interface OrchestratorParseInput {
+  query: string;
+  destinationFromImage?: string;
+  budgetUSD?: number;
+}
+
+/**
+ * Orchestrator agent — turns the raw user query into a TripRequest and
+ * decides the route (plan vs direct). Named so it appears as its own
+ * node in the Weave trace tree.
+ */
+const orchestratorParse = weave.op(async function orchestrator(input: OrchestratorParseInput) {
+  return callJSON({
+    model: MODELS.orchestrator,
+    system: PARSE_SYSTEM,
+    user: [
+      `User query: ${input.query || "(none — relying on uploaded photo)"}`,
+      input.destinationFromImage ? `Destination identified from image: ${input.destinationFromImage}` : "",
+      input.budgetUSD ? `Budget (USD): ${input.budgetUSD}` : "",
+    ].filter(Boolean).join("\n"),
+    schema: ParseSchema,
+    temperature: 0.1,
+  });
+});
+
 export async function* orchestrate(
   input: OrchestratorInput
 ): AsyncGenerator<StreamEvent, void, unknown> {
@@ -91,16 +117,10 @@ export async function* orchestrate(
     }
 
     yield { type: "agent", agent: "orchestrator", status: "started", detail: "Parsing request" };
-    const parsed = await callJSON({
-      model: MODELS.orchestrator,
-      system: PARSE_SYSTEM,
-      user: [
-        `User query: ${input.query || "(none — relying on uploaded photo)"}`,
-        destinationFromImage ? `Destination identified from image: ${destinationFromImage}` : "",
-        input.budgetUSD ? `Budget (USD): ${input.budgetUSD}` : "",
-      ].filter(Boolean).join("\n"),
-      schema: ParseSchema,
-      temperature: 0.1,
+    const parsed = await orchestratorParse({
+      query: input.query ?? "",
+      destinationFromImage,
+      budgetUSD: input.budgetUSD,
     });
 
     const request: TripRequest = {
