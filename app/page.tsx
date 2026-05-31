@@ -3,21 +3,20 @@ import { useRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Hero } from "@/components/landing/Hero";
 import type { Destination, EarthGlobeHandle } from "@/components/landing/EarthGlobe";
 import { VoiceButton } from "@/components/voice/VoiceButton";
 
 const EarthGlobe = dynamic(
   () => import("@/components/landing/EarthGlobe").then((m) => m.EarthGlobe as unknown as React.ComponentType<Record<string, unknown>>),
-  { ssr: false, loading: () => <GlobeFallback /> }
+  { ssr: false, loading: () => <GlobeSkeleton /> }
 );
 
 const DESTINATIONS: Destination[] = [
-  { id: "japan",   label: "Japan — Tokyo",   lat: 35.6762, lng: 139.6503, color: "#bd0029" },
-  { id: "italy",   label: "Italy — Rome (soon)",     lat: 41.9028, lng: 12.4964, color: "#94a3b8" },
-  { id: "iceland", label: "Iceland — Reykjavík (soon)", lat: 64.1466, lng: -21.9426, color: "#94a3b8" },
-  { id: "morocco", label: "Morocco — Marrakech (soon)", lat: 31.6295, lng: -7.9811, color: "#94a3b8" },
-  { id: "thailand",label: "Thailand — Bangkok (soon)", lat: 13.7563, lng: 100.5018, color: "#94a3b8" },
+  { id: "japan",    label: "Japan · Tokyo",          lat: 35.6762, lng: 139.6503, active: true  },
+  { id: "italy",    label: "Italy · Rome (soon)",    lat: 41.9028, lng:  12.4964 },
+  { id: "iceland",  label: "Iceland · Reykjavík (soon)", lat: 64.1466, lng: -21.9426 },
+  { id: "morocco",  label: "Morocco · Marrakech (soon)", lat: 31.6295, lng:  -7.9811 },
+  { id: "thailand", label: "Thailand · Bangkok (soon)",  lat: 13.7563, lng: 100.5018 },
 ];
 
 export default function Landing() {
@@ -25,48 +24,118 @@ export default function Landing() {
   const globeRef = useRef<EarthGlobeHandle | null>(null);
 
   async function goToCountry(dest: Destination) {
-    if (globeRef.current) {
-      await globeRef.current.flyTo(dest);
-    }
-    if (dest.id !== "japan") {
-      // Future: route to other countries. For now, fall back to Japan.
-      router.push(`/plan/japan`);
-      return;
-    }
-    router.push(`/plan/${dest.id}`);
+    try { await globeRef.current?.flyTo(dest); } catch {}
+    router.push(`/plan/${dest.id !== "japan" ? "japan" : dest.id}`);
   }
 
   return (
-    <div className="min-h-screen washi relative overflow-hidden">
+    <div className="min-h-screen overflow-hidden relative" style={{ background: "linear-gradient(180deg, #fbf6e9 0%, #f7efde 60%, #f4ecdc 100%)" }}>
+      {/* Subtle paper texture overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.35]" style={{
+        backgroundImage:
+          "radial-gradient(rgba(28,27,31,0.06) 1px, transparent 1px), radial-gradient(rgba(189,0,41,0.025) 1px, transparent 1px)",
+        backgroundSize: "26px 26px, 9px 9px",
+        backgroundPosition: "0 0, 13px 13px",
+      }} />
+
       <Nav />
 
-      <div className="relative max-w-6xl mx-auto px-4 pt-14 pb-10">
-        <Hero onPickJapan={() => goToCountry(DESTINATIONS[0])} />
-      </div>
+      <main className="relative max-w-[1240px] mx-auto px-6 sm:px-8 pt-10 sm:pt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-6 lg:gap-10 items-center">
+          {/* Left: editorial hero */}
+          <div className="relative">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[color:var(--ink-faint)] mb-6"
+            >
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--accent)] pulse-dot" />
+              Wanderly — a team of specialists
+            </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
-        className="relative max-w-6xl mx-auto px-4 pb-20"
-      >
-        <div className="relative rounded-[2rem] border bg-gradient-to-b from-white to-[color:var(--bg)] overflow-hidden" style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-lg)" }}>
-          <EarthGlobe destinations={DESTINATIONS} onSelect={goToCountry} height={560} />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white/70 to-transparent" />
-          <div className="absolute left-6 bottom-5 text-[11px] uppercase tracking-[0.22em] text-[color:var(--ink-faint)]">
-            Day 1: <span className="text-[color:var(--ink-soft)]">Japan only · more cities soon</span>
+            <motion.h1
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, delay: 0.05 }}
+              className="font-display text-[64px] sm:text-[88px] lg:text-[104px] leading-[0.95] tracking-[-0.035em] text-[color:var(--ink)]"
+            >
+              Travel
+              <br />
+              that <em className="italic" style={{ color: "var(--accent)" }}>holds up</em>.
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, delay: 0.18 }}
+              className="mt-7 max-w-md text-[17px] leading-[1.55] text-[color:var(--ink-soft)]"
+            >
+              Wanderly plans your trip with a team of AI specialists working in parallel. A critic
+              verifies every claim against live data — and quietly fixes anything that doesn’t.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, delay: 0.28 }}
+              className="mt-9 flex flex-wrap items-center gap-4"
+            >
+              <button
+                onClick={() => goToCountry(DESTINATIONS[0])}
+                className="group inline-flex items-center gap-2.5 pl-6 pr-5 py-3.5 rounded-full bg-[color:var(--ink)] text-white text-[14px] font-medium tracking-tight hover:opacity-95 transition"
+                style={{ boxShadow: "0 16px 40px -16px rgba(28,27,31,0.45)" }}
+              >
+                Plan a trip to Japan
+                <span className="inline-block transition-transform group-hover:translate-x-0.5 text-[15px]">→</span>
+              </button>
+              <span className="text-xs text-[color:var(--ink-faint)] tracking-tight">or speak to the concierge</span>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.2, delay: 0.5 }}
+              className="mt-12 grid grid-cols-3 gap-6 max-w-md"
+            >
+              <Stat number="13" label="specialists" />
+              <Stat number="<60s" label="end-to-end" />
+              <Stat number="2x" label="critic retries" />
+            </motion.div>
           </div>
+
+          {/* Right: globe */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.1, ease: "easeOut" }}
+            className="relative aspect-square w-full max-w-[560px] mx-auto"
+          >
+            {/* Soft red halo behind the globe */}
+            <div className="absolute inset-[8%] rounded-full pointer-events-none"
+                 style={{ background: "radial-gradient(closest-side, rgba(189,0,41,0.18), rgba(189,0,41,0.04) 60%, transparent 70%)", filter: "blur(8px)" }} />
+            <EarthGlobe destinations={DESTINATIONS} onSelect={goToCountry} height={560} />
+            {/* Bottom fade */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
+                 style={{ background: "linear-gradient(to top, rgba(244,236,220,0.95), transparent)" }} />
+          </motion.div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-          <Tile title="Plans" body="A planner agent calls flight, hotel, weather, and food specialists in parallel." />
-          <Tile title="Verifies" body="A critic re-checks every claim against live data and the budget you set." />
-          <Tile title="Self-corrects" body="When something doesn’t hold up, the team revises automatically." />
-        </div>
-      </motion.div>
+        {/* Bottom row: small editorial tiles */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.7 }}
+          className="mt-14 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-3"
+        >
+          <Tile chapter="01" title="Plans" body="Planner agent calls flights, hotels, weather, food, transport — in parallel." />
+          <Tile chapter="02" title="Verifies" body="Critic re-checks every claim against live sources and the budget you set." />
+          <Tile chapter="03" title="Self-corrects" body="When something doesn’t hold up, the team revises before you see it." />
+        </motion.div>
+      </main>
 
-      <footer className="py-10 text-center text-xs text-[color:var(--ink-faint)]">
-        Built for a multi-agent hackathon · plan, verify, self-correct
+      <footer className="relative py-12 mt-12 text-center text-[11px] tracking-[0.22em] uppercase text-[color:var(--ink-faint)]">
+        plan · verify · self-correct
       </footer>
 
       <VoiceButton defaultDestination="Japan" />
@@ -76,31 +145,45 @@ export default function Landing() {
 
 function Nav() {
   return (
-    <header className="relative max-w-6xl mx-auto px-4 pt-6 flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-lg bg-[color:var(--ink)] flex items-center justify-center text-white font-display font-semibold">W</div>
-        <span className="font-display text-lg tracking-tight">Wanderly</span>
+    <header className="relative max-w-[1240px] mx-auto px-6 sm:px-8 pt-7 flex items-center justify-between">
+      <a href="/" className="flex items-center gap-2.5">
+        <div className="h-8 w-8 rounded-xl bg-[color:var(--ink)] flex items-center justify-center text-white font-display text-[15px] font-semibold">W</div>
+        <span className="font-display text-[17px] tracking-tight">Wanderly</span>
+      </a>
+      <div className="hidden sm:flex items-center gap-6 text-[12px] tracking-tight text-[color:var(--ink-soft)]">
+        <a href="#how" className="hover:text-[color:var(--ink)] transition">How it works</a>
+        <a href="/plan/japan" className="hover:text-[color:var(--ink)] transition">Try Japan</a>
+        <span className="text-[color:var(--ink-faint)]">v0.1 · hackathon</span>
       </div>
-      <div className="text-xs text-[color:var(--ink-faint)]">a multi-agent travel concierge</div>
     </header>
   );
 }
 
-function Tile({ title, body }: { title: string; body: string }) {
+function Stat({ number, label }: { number: string; label: string }) {
   return (
-    <div className="rounded-2xl border bg-white p-4" style={{ borderColor: "var(--border)" }}>
-      <div className="text-[11px] uppercase tracking-[0.22em] text-[color:var(--accent)] mb-1.5">{title}</div>
-      <div className="text-[color:var(--ink-soft)] leading-relaxed">{body}</div>
+    <div>
+      <div className="font-display text-2xl tracking-tight text-[color:var(--ink)]">{number}</div>
+      <div className="text-[11px] uppercase tracking-[0.22em] text-[color:var(--ink-faint)]">{label}</div>
     </div>
   );
 }
 
-function GlobeFallback() {
+function Tile({ chapter, title, body }: { chapter: string; title: string; body: string }) {
   return (
-    <div className="w-full" style={{ height: 560 }}>
-      <div className="h-full w-full flex items-center justify-center text-[color:var(--ink-faint)] text-sm">
-        Loading globe…
+    <div className="rounded-2xl border bg-white/70 backdrop-blur p-5" style={{ borderColor: "var(--border)" }}>
+      <div className="flex items-baseline gap-2 mb-2">
+        <span className="font-display text-[15px] text-[color:var(--accent)]">{chapter}</span>
+        <span className="text-[14px] font-medium tracking-tight">{title}</span>
       </div>
+      <div className="text-[13px] leading-relaxed text-[color:var(--ink-soft)]">{body}</div>
+    </div>
+  );
+}
+
+function GlobeSkeleton() {
+  return (
+    <div className="w-full aspect-square max-w-[560px] mx-auto flex items-center justify-center text-[color:var(--ink-faint)] text-sm">
+      Loading globe…
     </div>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useImperativeHandle, useRef, forwardRef } from "react";
+import { useEffect, useImperativeHandle, useMemo, useRef, useState, forwardRef } from "react";
 import Globe, { GlobeMethods } from "react-globe.gl";
 
 export interface Destination {
@@ -7,7 +7,7 @@ export interface Destination {
   label: string;
   lat: number;
   lng: number;
-  color?: string;
+  active?: boolean;
 }
 
 export interface EarthGlobeHandle {
@@ -21,28 +21,81 @@ interface Props {
   autoRotateSpeed?: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GeoFeature = { properties?: { name?: string }; geometry?: any };
+
+const COUNTRIES_URL = "https://unpkg.com/three-globe/example/country-polygons/ne_110m_admin_0_countries.geojson";
+
+function creamTextureDataUrl(): string {
+  if (typeof document === "undefined") return "";
+  const c = document.createElement("canvas");
+  c.width = 64;
+  c.height = 64;
+  const ctx = c.getContext("2d");
+  if (!ctx) return "";
+  // Soft cream with a faint warm gradient — feels like paper, not paint
+  const g = ctx.createLinearGradient(0, 0, 64, 64);
+  g.addColorStop(0, "#f7f0dd");
+  g.addColorStop(1, "#efdfb8");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  // Subtle warm noise
+  for (let i = 0; i < 240; i++) {
+    const x = Math.random() * 64;
+    const y = Math.random() * 64;
+    const a = 0.02 + Math.random() * 0.04;
+    ctx.fillStyle = `rgba(189,0,41,${a})`;
+    ctx.fillRect(x, y, 1, 1);
+  }
+  return c.toDataURL("image/png");
+}
+
 export const EarthGlobe = forwardRef<EarthGlobeHandle, Props>(function EarthGlobe(
-  { destinations, onSelect, height = 560, autoRotateSpeed = 0.45 },
+  { destinations, onSelect, height = 560, autoRotateSpeed = 0.35 },
   ref
 ) {
   const globeRef = useRef<GlobeMethods>(undefined as unknown as GlobeMethods);
+  const [countries, setCountries] = useState<GeoFeature[]>([]);
+  const creamUrl = useMemo(() => creamTextureDataUrl(), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(COUNTRIES_URL)
+      .then((r) => r.json())
+      .then((data: { features?: GeoFeature[] }) => {
+        if (cancelled) return;
+        setCountries(data?.features ?? []);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     const g = globeRef.current;
     if (!g) return;
-    const controls = g.controls();
+    const controls = g.controls() as unknown as {
+      autoRotate: boolean;
+      autoRotateSpeed: number;
+      enableZoom: boolean;
+      enablePan: boolean;
+      minPolarAngle: number;
+      maxPolarAngle: number;
+    };
     controls.autoRotate = true;
     controls.autoRotateSpeed = autoRotateSpeed;
     controls.enableZoom = false;
-    g.pointOfView({ lat: 25, lng: 30, altitude: 2.2 }, 0);
+    controls.enablePan = false;
+    controls.minPolarAngle = Math.PI / 3.5;
+    controls.maxPolarAngle = Math.PI - Math.PI / 3.5;
+    g.pointOfView({ lat: 22, lng: 110, altitude: 2.0 }, 0);
   }, [autoRotateSpeed]);
 
   useImperativeHandle(ref, () => ({
-    async flyTo(dest, durationMs = 1800) {
+    async flyTo(dest, durationMs = 1600) {
       const g = globeRef.current;
       if (!g) return;
-      g.controls().autoRotate = false;
-      g.pointOfView({ lat: dest.lat, lng: dest.lng, altitude: 0.6 }, durationMs);
+      (g.controls() as unknown as { autoRotate: boolean }).autoRotate = false;
+      g.pointOfView({ lat: dest.lat, lng: dest.lng, altitude: 0.7 }, durationMs);
       await new Promise((r) => setTimeout(r, durationMs));
     },
   }), []);
@@ -56,24 +109,35 @@ export const EarthGlobe = forwardRef<EarthGlobeHandle, Props>(function EarthGlob
         backgroundColor="rgba(0,0,0,0)"
         showAtmosphere
         atmosphereColor="#bd0029"
-        atmosphereAltitude={0.18}
-        globeImageUrl="//unpkg.com/three-globe/example/img/earth-day.jpg"
-        bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+        atmosphereAltitude={0.12}
+
+        globeImageUrl={creamUrl}
+
+        polygonsData={countries}
+        polygonAltitude={0.006}
+        polygonCapColor={() => "rgba(28, 27, 31, 0.08)"}
+        polygonSideColor={() => "rgba(28, 27, 31, 0.04)"}
+        polygonStrokeColor={() => "rgba(28, 27, 31, 0.26)"}
+
         pointsData={destinations}
         pointLat="lat"
         pointLng="lng"
-        pointColor={(d) => (d as Destination).color ?? "#bd0029"}
-        pointAltitude={0.018}
-        pointRadius={0.55}
-        pointLabel={(d) => `<div style="font-family:Inter,sans-serif;font-size:12px;padding:4px 8px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.08);color:#1c1b1f;box-shadow:0 4px 14px rgba(0,0,0,0.08)">${(d as Destination).label}</div>`}
+        pointColor={(d) => ((d as Destination).active ? "#bd0029" : "rgba(28, 27, 31, 0.45)")}
+        pointAltitude={(d) => ((d as Destination).active ? 0.025 : 0.012)}
+        pointRadius={(d) => ((d as Destination).active ? 0.55 : 0.35)}
+        pointLabel={(d) => {
+          const dest = d as Destination;
+          return `<div style="font-family:Inter,sans-serif;font-size:12px;padding:6px 10px;background:#ffffff;border-radius:10px;border:1px solid rgba(28,27,31,0.08);color:#1c1b1f;box-shadow:0 8px 24px rgba(28,27,31,0.10);white-space:nowrap">${dest.label}</div>`;
+        }}
         onPointClick={(d) => onSelect(d as Destination)}
-        ringsData={destinations}
+
+        ringsData={destinations.filter((d) => d.active)}
         ringLat="lat"
         ringLng="lng"
-        ringColor={() => (t: number) => `rgba(189, 0, 41, ${1 - t})`}
-        ringMaxRadius={2.5}
-        ringPropagationSpeed={1.5}
-        ringRepeatPeriod={1400}
+        ringColor={() => (t: number) => `rgba(189, 0, 41, ${0.85 * (1 - t)})`}
+        ringMaxRadius={2.4}
+        ringPropagationSpeed={1.4}
+        ringRepeatPeriod={1500}
       />
     </div>
   );
