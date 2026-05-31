@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import { PlanningExperience } from "@/components/plan/PlanningExperience";
 import { AgentStatusProvider, useAgentStatus } from "@/components/avatars/AgentStatusContext";
+import { VoiceButton } from "@/components/voice/VoiceButton";
 import type { Theme } from "@/lib/theme";
 
 const AgentStage = dynamic(
@@ -22,6 +23,7 @@ export function CountryClient({ theme, placeholder, defaultDestination }: Props)
         <AgentStage height={340} />
         <PlanningWithStatus theme={theme} placeholder={placeholder} defaultDestination={defaultDestination} />
       </div>
+      <VoiceButton defaultDestination={defaultDestination} />
     </AgentStatusProvider>
   );
 }

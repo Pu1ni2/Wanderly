@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Hero } from "@/components/landing/Hero";
 import type { Destination, EarthGlobeHandle } from "@/components/landing/EarthGlobe";
+import { VoiceButton } from "@/components/voice/VoiceButton";
 
 const EarthGlobe = dynamic(
   () => import("@/components/landing/EarthGlobe").then((m) => m.EarthGlobe as unknown as React.ComponentType<Record<string, unknown>>),
@@ -67,6 +68,8 @@ export default function Landing() {
       <footer className="py-10 text-center text-xs text-[color:var(--ink-faint)]">
         Built for a multi-agent hackathon · plan, verify, self-correct
       </footer>
+
+      <VoiceButton defaultDestination="Japan" />
     </div>
   );
 }
