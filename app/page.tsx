@@ -115,30 +115,30 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100 dark:from-neutral-950 dark:to-neutral-900">
+    <div className="min-h-screen washi">
       <div className="max-w-5xl mx-auto px-4 py-10 sm:py-14">
         <header className="mb-8">
           <div className="flex items-center gap-2 mb-1">
-            <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">W</div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Wanderly</h1>
+            <div className="h-8 w-8 rounded-lg bg-[color:var(--accent)] flex items-center justify-center text-white font-bold">W</div>
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight font-display">Wanderly</h1>
           </div>
-          <p className="text-sm text-neutral-500">A team of AI agents that plans, verifies, and self-corrects your trip.</p>
+          <p className="text-sm text-[color:var(--ink-faint)]">A team of AI agents that plans, verifies, and self-corrects your trip.</p>
         </header>
 
         <ChatInput onSubmit={start} disabled={running} />
 
         {vision && pendingArgs && (
-          <div className="mt-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-4">
+          <div className="mt-4 rounded-2xl border bg-white p-4" style={{ borderColor: "var(--border)" }}>
             <div className="text-sm mb-2">
               I&apos;m only <span className="font-semibold">{Math.round(vision.confidence * 100)}%</span> sure this is{" "}
               <span className="font-semibold">{vision.guess}</span>. Pick the right one to continue:
             </div>
             <div className="flex flex-wrap gap-2">
-              <button onClick={() => confirmDestination(vision.guess)} className="px-3 py-1.5 rounded-full bg-indigo-600 text-white text-sm hover:bg-indigo-700">
+              <button onClick={() => confirmDestination(vision.guess)} className="px-3 py-1.5 rounded-full bg-[color:var(--accent)] text-white text-sm hover:opacity-95">
                 {vision.guess}
               </button>
               {vision.alternates.map((alt) => (
-                <button key={alt} onClick={() => confirmDestination(alt)} className="px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-sm hover:bg-neutral-200 dark:hover:bg-neutral-700">
+                <button key={alt} onClick={() => confirmDestination(alt)} className="px-3 py-1.5 rounded-full bg-[color:var(--bg)] border text-sm hover:bg-white" style={{ borderColor: "var(--border)" }}>
                   {alt}
                 </button>
               ))}
@@ -146,14 +146,14 @@ export default function Home() {
             {pendingImage && (
               <div className="mt-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={pendingImage} alt="" className="h-24 rounded-lg border border-neutral-200 dark:border-neutral-700" />
+                <img src={pendingImage} alt="" className="h-24 rounded-lg border" style={{ borderColor: "var(--border)" }} />
               </div>
             )}
           </div>
         )}
 
         {error && (
-          <div className="mt-4 rounded-2xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 p-4 text-sm text-red-800 dark:text-red-200">
+          <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
             {error}
           </div>
         )}
@@ -171,7 +171,7 @@ export default function Home() {
           )}
         </div>
 
-        <footer className="mt-12 text-center text-xs text-neutral-400">
+        <footer className="mt-12 text-center text-xs text-[color:var(--ink-faint)]">
           Built for a multi-agent hackathon. Plan, verify, self-correct.
         </footer>
       </div>

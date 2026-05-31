@@ -1,34 +1,69 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Warm, refined light palette */
+  --bg: #faf7f2;
+  --bg-elev: #ffffff;
+  --ink: #1c1b1f;
+  --ink-soft: #5b5963;
+  --ink-faint: #8b8892;
+  --accent: #bd0029;
+  --accent-soft: #f7d6e0;
+  --border: rgba(28, 27, 31, 0.08);
+  --shadow-sm: 0 1px 2px rgba(28, 27, 31, 0.04);
+  --shadow-md: 0 4px 14px rgba(28, 27, 31, 0.06), 0 1px 3px rgba(28, 27, 31, 0.04);
+  --shadow-lg: 0 24px 60px -20px rgba(28, 27, 31, 0.18), 0 8px 24px -8px rgba(28, 27, 31, 0.08);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
+  --font-jp: var(--font-noto-jp);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "ss01", "cv11";
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
+.font-display { font-family: var(--font-fraunces), Georgia, serif; }
+.font-jp      { font-family: var(--font-noto-jp), var(--font-fraunces), Georgia, serif; }
 
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%      { opacity: 0.55; transform: scale(0.85); }
 }
-.pulse-dot {
-  animation: pulse-dot 1.2s ease-in-out infinite;
+.pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
+
+@keyframes petal-fall {
+  0%   { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.9; }
+  100% { transform: translate3d(40px, 110vh, 0) rotate(540deg); opacity: 0; }
+}
+.petal { animation: petal-fall linear infinite; }
+
+@keyframes ring-fade {
+  0%   { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+.ring-fade { animation: ring-fade 0.9s ease-out forwards; }
+
+@keyframes float-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+.float-bob { animation: float-bob 3s ease-in-out infinite; }
+
+/* Subtle washi paper texture, kept as CSS so no asset is needed */
+.washi {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(rgba(28, 27, 31, 0.025) 1px, transparent 1px),
+    radial-gradient(rgba(189, 0, 41, 0.012) 1px, transparent 1px);
+  background-size: 24px 24px, 7px 7px;
+  background-position: 0 0, 12px 12px;
 }

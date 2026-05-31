@@ -8,36 +8,53 @@ interface Props {
   attempts: number;
   verified: boolean;
   spokenSummary?: string;
+  accent?: string;
+  displayFontClass?: string;
 }
 
-export function ItineraryView({ itinerary, budgetUSD, attempts, verified, spokenSummary }: Props) {
+export function ItineraryView({ itinerary, budgetUSD, attempts, verified, spokenSummary, accent = "#bd0029", displayFontClass = "font-display" }: Props) {
   return (
-    <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm overflow-hidden">
-      <div className="p-5 border-b border-neutral-200 dark:border-neutral-800">
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <h2 className="text-xl font-semibold tracking-tight">{itinerary.destination}</h2>
+    <div
+      className="rounded-3xl border bg-white overflow-hidden"
+      style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-lg)" }}
+    >
+      <div className="p-6 border-b" style={{ borderColor: "var(--border)" }}>
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <h2 className={`text-2xl sm:text-3xl tracking-tight ${displayFontClass}`}>{itinerary.destination}</h2>
           <CriticBadge attempts={attempts} verified={verified} />
         </div>
-        <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-4">{itinerary.summary}</p>
+        <p className="text-[15px] text-[color:var(--ink-soft)] mb-5 leading-relaxed">{itinerary.summary}</p>
         <BudgetMeter spentUSD={itinerary.estimatedCostUSD} budgetUSD={budgetUSD} />
         {itinerary.costBreakdown && (
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-500">
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[color:var(--ink-faint)]">
             {Object.entries(itinerary.costBreakdown).map(([k, v]) => (
-              <span key={k}><span className="capitalize">{k}</span>: <span className="font-medium text-neutral-700 dark:text-neutral-300">${Number(v).toLocaleString()}</span></span>
+              <span key={k}>
+                <span className="capitalize">{k}</span>:{" "}
+                <span className="font-medium text-[color:var(--ink)]">${Number(v).toLocaleString()}</span>
+              </span>
             ))}
           </div>
         )}
         {spokenSummary && <ListenButton text={spokenSummary} />}
       </div>
 
-      <div className="p-5 grid gap-3 sm:grid-cols-2">
+      <div className="p-6 grid gap-4 sm:grid-cols-2">
         {itinerary.days.map((d) => (
-          <div key={d.day} className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 bg-neutral-50/60 dark:bg-neutral-900/40">
-            <div className="flex items-baseline gap-2 mb-2">
-              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-indigo-600 text-white text-xs font-semibold">{d.day}</span>
-              <h3 className="font-medium">{d.title ?? `Day ${d.day}`}</h3>
+          <div
+            key={d.day}
+            className="rounded-2xl border p-5 bg-[color:var(--bg)]"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <div className="flex items-baseline gap-2 mb-3">
+              <span
+                className="inline-flex items-center justify-center h-7 w-7 rounded-full text-white text-xs font-semibold"
+                style={{ backgroundColor: accent }}
+              >
+                {d.day}
+              </span>
+              <h3 className={`font-medium text-lg ${displayFontClass}`}>{d.title ?? `Day ${d.day}`}</h3>
             </div>
-            <ul className="space-y-1.5 text-sm text-neutral-700 dark:text-neutral-300">
+            <ul className="space-y-1.5 text-[14px] text-[color:var(--ink-soft)]">
               {d.items.map((it, i) => <li key={i} className="leading-relaxed">{it}</li>)}
             </ul>
           </div>
@@ -45,9 +62,9 @@ export function ItineraryView({ itinerary, budgetUSD, attempts, verified, spoken
       </div>
 
       {(itinerary.notes?.length || itinerary.sources?.length) && (
-        <div className="px-5 py-4 border-t border-neutral-200 dark:border-neutral-800 text-xs text-neutral-500 space-y-1">
-          {itinerary.notes?.length ? <div><span className="font-medium text-neutral-600 dark:text-neutral-400">Notes:</span> {itinerary.notes.join(" · ")}</div> : null}
-          {itinerary.sources?.length ? <div><span className="font-medium text-neutral-600 dark:text-neutral-400">Sources:</span> {itinerary.sources.join(", ")}</div> : null}
+        <div className="px-6 py-4 border-t text-xs text-[color:var(--ink-faint)] space-y-1" style={{ borderColor: "var(--border)" }}>
+          {itinerary.notes?.length ? <div><span className="font-medium text-[color:var(--ink-soft)]">Notes:</span> {itinerary.notes.join(" · ")}</div> : null}
+          {itinerary.sources?.length ? <div><span className="font-medium text-[color:var(--ink-soft)]">Sources:</span> {itinerary.sources.join(", ")}</div> : null}
         </div>
       )}
     </div>
@@ -70,10 +87,14 @@ function ListenButton({ text }: { text: string }) {
   }
   return (
     <div className="mt-4 flex items-center gap-2">
-      <button onClick={play} className="text-xs px-2.5 py-1.5 rounded-md bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition">
+      <button
+        onClick={play}
+        className="text-xs px-3 py-1.5 rounded-full bg-[color:var(--bg)] border hover:bg-white transition"
+        style={{ borderColor: "var(--border)" }}
+      >
         ▶ Listen
       </button>
-      <span className="text-[10px] text-neutral-500">AI-generated voice</span>
+      <span className="text-[10px] text-[color:var(--ink-faint)]">AI-generated voice</span>
     </div>
   );
 }
