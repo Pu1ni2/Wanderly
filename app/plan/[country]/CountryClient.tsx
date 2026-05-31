@@ -15,6 +15,8 @@ interface Props {
   placeholder?: string;
   defaultDestination: string;
   capital?: string;
+  language?: string;
+  greeting?: string;
 }
 
 export function CountryClient(props: Props) {
@@ -25,7 +27,7 @@ export function CountryClient(props: Props) {
   );
 }
 
-function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
+function Inner({ theme, placeholder, defaultDestination, capital, language, greeting }: Props) {
   const { push, reset, setRunning } = useAgentStatus();
   const plan = usePlanStream({
     defaultDestination,
@@ -38,8 +40,8 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
 
   return (
     <>
-      {/* Differentiation copy + voice */}
-      <div className="mb-5">
+      {/* Headline */}
+      <div className="mb-6">
         <div className="font-display text-[22px] sm:text-[26px] tracking-tight text-stone-900 leading-snug">
           Watch the team work on your trip in real time.
         </div>
@@ -48,10 +50,12 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
         </div>
       </div>
 
+      {/* Voice section */}
+      <SectionLabel title="Talk to your concierge" subtitle="It routes your request to the right specialist — live." />
       <div className="mb-6">
         <VoicePanel
           accent={theme.accent}
-          country={{ name: defaultDestination, capital }}
+          country={{ name: defaultDestination, capital, language, greeting }}
           defaultDestination={defaultDestination}
           onAgentEvent={(ev) => push(ev)}
           onPlanFullTrip={async (args) => {
@@ -62,11 +66,13 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
       </div>
 
       {/* Live agent feed (ticker) */}
+      <SectionLabel title="Live agent feed" subtitle="Every tool call your concierge makes shows up here, with its source." />
       <div className="mb-6">
         <AgentLiveTicker />
       </div>
 
-      {/* Two-column: input left, agent grid right */}
+      {/* Specialists grid + text-input column */}
+      <SectionLabel title="Your team of specialists" subtitle="Nine agents that look up real data and verify each other." />
       <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-6 lg:gap-8">
         {/* Left column: input + side info */}
         <motion.div
@@ -74,12 +80,15 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="space-y-4 order-2 lg:order-1"
         >
-          <ChatInput
-            onSubmit={plan.start}
-            disabled={plan.running}
-            placeholder={placeholder}
-            accent={theme.accent}
-          />
+          <div>
+            <SectionLabel title="Plan in writing" subtitle="Type your request if you'd rather not speak." compact />
+            <ChatInput
+              onSubmit={plan.start}
+              disabled={plan.running}
+              placeholder={placeholder}
+              accent={theme.accent}
+            />
+          </div>
 
           {plan.vision && plan.pendingArgs && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl border bg-white p-4" style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-md)" }}>
@@ -117,7 +126,7 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
         </motion.div>
       </div>
 
-      {/* Activity strip — legacy text input feed (still useful for full pipeline) */}
+      {/* Activity strip — full pipeline trace */}
       <AnimatePresence>
         {(plan.events.length > 0 || plan.running) && (
           <motion.div
@@ -127,8 +136,9 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.45 }}
-            className="mt-6"
+            className="mt-8"
           >
+            <SectionLabel title="Full pipeline trace" subtitle="The orchestrator → planner → critic loop, shown when you request a whole-trip plan." />
             <AgentActivity events={plan.events} criticIssues={plan.criticIssues} />
           </motion.div>
         )}
@@ -145,6 +155,7 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             className="mt-8"
           >
+            <SectionLabel title="Your itinerary" subtitle="Verified by the critic before it reaches you." />
             <ItineraryView
               itinerary={plan.final.itinerary}
               budgetUSD={plan.budgetUSD}
@@ -158,6 +169,20 @@ function Inner({ theme, placeholder, defaultDestination, capital }: Props) {
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+function SectionLabel({ title, subtitle, compact }: { title: string; subtitle?: string; compact?: boolean }) {
+  return (
+    <div className={compact ? "mb-2" : "mb-3"}>
+      <div className="flex items-center gap-3">
+        <span className="text-[10px] uppercase tracking-[0.32em] text-stone-500 font-medium">{title}</span>
+        <span className="h-px flex-1 bg-stone-200" />
+      </div>
+      {subtitle && !compact && (
+        <div className="text-[12px] text-stone-500 mt-1 leading-snug">{subtitle}</div>
+      )}
+    </div>
   );
 }
 

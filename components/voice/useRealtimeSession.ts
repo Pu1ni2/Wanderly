@@ -29,6 +29,8 @@ export interface VoiceCountry {
   name: string;
   capital?: string;
   currency?: string;
+  language?: string;
+  greeting?: string;
 }
 
 interface Options {

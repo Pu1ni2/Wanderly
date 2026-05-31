@@ -1,11 +1,12 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import type { Destination, EarthGlobeHandle } from "@/components/landing/EarthGlobe";
 import { VoicePanel } from "@/components/voice/VoicePanel";
 import { CountryPicker } from "@/components/landing/CountryPicker";
+import { ApiStatusDrawer } from "@/components/settings/ApiStatusDrawer";
 import { COUNTRIES } from "@/lib/countries";
 
 const EarthGlobe = dynamic(
@@ -24,6 +25,7 @@ const DESTINATIONS: Destination[] = COUNTRIES.filter((c) => c.lat != null && c.l
 export default function Landing() {
   const router = useRouter();
   const globeRef = useRef<EarthGlobeHandle | null>(null);
+  const [apiOpen, setApiOpen] = useState(false);
 
   async function goToCountry(dest: Destination) {
     try { await globeRef.current?.flyTo(dest); } catch {}
@@ -44,7 +46,8 @@ export default function Landing() {
         backgroundPosition: "0 0, 13px 13px",
       }} />
 
-      <Nav />
+      <Nav onApi={() => setApiOpen(true)} />
+      <ApiStatusDrawer open={apiOpen} onClose={() => setApiOpen(false)} />
 
       <main className="relative max-w-[1240px] mx-auto px-6 sm:px-8 pt-10 sm:pt-20">
         <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-6 lg:gap-10 items-center">
@@ -152,17 +155,22 @@ export default function Landing() {
   );
 }
 
-function Nav() {
+function Nav({ onApi }: { onApi: () => void }) {
   return (
     <header className="relative max-w-[1240px] mx-auto px-6 sm:px-8 pt-7 flex items-center justify-between">
       <a href="/" className="flex items-center gap-2.5">
         <div className="h-8 w-8 rounded-xl bg-stone-900 flex items-center justify-center text-white font-display text-[15px] font-semibold">W</div>
         <span className="font-display text-[17px] tracking-tight">Wanderly</span>
       </a>
-      <div className="hidden sm:flex items-center gap-6 text-[12px] tracking-tight text-stone-600">
-        <a href="#how" className="hover:text-stone-900 transition">How it works</a>
-        <a href="/plan/japan" className="hover:text-stone-900 transition">Try Japan</a>
-        <span className="text-stone-500">v0.1 · hackathon</span>
+      <div className="flex items-center gap-5 text-[12px] tracking-tight text-stone-600">
+        <a href="/plan/japan" className="hover:text-stone-900 transition hidden sm:inline">Try Japan</a>
+        <button
+          onClick={onApi}
+          className="inline-flex items-center gap-1.5 text-stone-700 hover:text-stone-900 transition px-3 py-1.5 rounded-full border border-stone-200 bg-white"
+        >
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          API status
+        </button>
       </div>
     </header>
   );

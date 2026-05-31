@@ -10,6 +10,8 @@ interface CountryCtx {
   name: string;
   capital?: string;
   currency?: string;
+  language?: string;
+  greeting?: string;
 }
 
 function buildInstructions(country: CountryCtx | null): string {
@@ -19,18 +21,26 @@ function buildInstructions(country: CountryCtx | null): string {
     "Hard rules — never break these:",
     "1. NEVER answer travel facts from memory. Any question about weather, flights, hotels, restaurants, transit, prices, or currency MUST go through a tool call.",
     "2. When the user asks a small question (e.g. 'what's the weather in X'), call ONE narrow tool (getWeather, findFlights, findHotels, findRestaurants, getTransport, convertCurrency, translate, findImages). DO NOT call planFullTrip for small questions.",
-    "3. Only call planFullTrip when the user explicitly asks for a whole-trip itinerary (e.g. 'plan me 5 days in Tokyo for $2000').",
-    "4. Before a tool fires, say a 3-5 word bridge line ('on it — checking the weather'). After the tool returns, speak the result naturally in 1-2 sentences.",
-    "5. Keep replies short. Conversational. No JSON. No prices read to decimals. No repeating the user.",
+    "3. Only call planFullTrip when the user has given enough information: destination, origin city, approximate duration, and (ideally) budget. If any are missing for a whole-trip request, ASK ONE concise follow-up before firing the tool.",
+    "4. Follow-up priority order: origin city first, then trip length (days), then budget. Ask ONE question per turn — never pile up. After the user answers, proceed with the tool call, even if details are still loose.",
+    "5. For narrow tools, if a critical parameter is missing (e.g. findFlights without an origin), ask ONE short question for it, then call the tool.",
+    "6. Before a tool fires, say a 3-5 word bridge line ('on it — checking the weather'). After the tool returns, speak the result naturally in 1-2 sentences.",
+    "7. Keep replies short and conversational. No JSON. No prices read to decimals. No repeating the user.",
   ];
   if (country) {
     lines.push("");
     lines.push(`Country context: the user is on the ${country.name} page${country.capital ? ` (capital: ${country.capital})` : ""}.`);
     lines.push(`Default destination is ${country.name}${country.capital ? ` and the default city is ${country.capital}` : ""}. The user does not need to repeat this.`);
-    lines.push(`Greet the user once with ONE short sentence referencing ${country.name}, then immediately stop and wait for them to speak.`);
+    if (country.language && country.greeting) {
+      lines.push(`Greet the user with EXACTLY this short phrase first, spoken in ${country.language}: "${country.greeting}"`);
+      lines.push(`Then immediately switch to English and ask your first follow-up — typically "where are you flying from?" — unless they already gave you an origin.`);
+      lines.push(`If the user replies in ${country.language}, continue the entire conversation in ${country.language}. Otherwise stay in English.`);
+    } else {
+      lines.push(`Greet the user once with ONE short sentence referencing ${country.name}, then ask your first follow-up question.`);
+    }
   } else {
     lines.push("");
-    lines.push("No country context yet. If the user asks for travel info, ask them where in one short sentence, then call the appropriate tool.");
+    lines.push("No country context yet. Greet the user with one short English sentence and ask where they want to go.");
   }
   return lines.join(" ");
 }

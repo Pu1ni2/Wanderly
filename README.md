@@ -135,6 +135,8 @@ Install first:
 - A **Vercel account** (free) and the Vercel CLI: `npm i -g vercel`
 - An **OpenAI API key** with billing enabled
 
+> **Quick check**: in-app, open the **API status** pill in the top-right corner of any page. Green = wired up, gray = mocked. The same info, formatted for the moment you need it.
+
 Specialist data APIs. The free / no-signup ones are marked so you can prioritize them under time pressure:
 
 | Agent | Recommended API | Cost | Signup needed |

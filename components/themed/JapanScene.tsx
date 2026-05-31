@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { SakuraPetals } from "./SakuraPetals";
+import { ApiStatusNavPill } from "@/components/settings/ApiStatusNavPill";
 import type { ReactNode } from "react";
 
 interface Props {
@@ -80,9 +81,10 @@ function Nav() {
         <div className="h-8 w-8 rounded-xl bg-stone-900 flex items-center justify-center text-white font-display text-[15px] font-semibold">W</div>
         <span className="font-display text-[17px] tracking-tight">Wanderly</span>
       </a>
-      <div className="flex items-center gap-5 text-[12px] tracking-tight text-stone-600">
+      <div className="flex items-center gap-3 text-[12px] tracking-tight text-stone-600">
         <a href="/" className="hover:text-stone-900 transition">← globe</a>
         <span className="text-stone-500 hidden sm:inline">日本 · Japan</span>
+        <ApiStatusNavPill />
       </div>
     </header>
   );

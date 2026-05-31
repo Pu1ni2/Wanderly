@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 import type { CountryMeta } from "@/lib/countries";
+import { ApiStatusNavPill } from "@/components/settings/ApiStatusNavPill";
 
 interface Props {
   country: CountryMeta;
@@ -77,9 +78,10 @@ function Nav({ country }: { country: CountryMeta }) {
         <div className="h-8 w-8 rounded-xl bg-stone-900 flex items-center justify-center text-white font-display text-[15px] font-semibold">W</div>
         <span className="font-display text-[17px] tracking-tight text-stone-900">Wanderly</span>
       </a>
-      <div className="flex items-center gap-5 text-[12px] tracking-tight text-stone-600">
+      <div className="flex items-center gap-3 text-[12px] tracking-tight text-stone-600">
         <a href="/" className="hover:text-stone-900 transition">← globe</a>
         <span className="text-stone-500 hidden sm:inline">{country.name}{country.capital ? ` · ${country.capital}` : ""}</span>
+        <ApiStatusNavPill />
       </div>
     </header>
   );
