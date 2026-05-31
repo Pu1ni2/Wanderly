@@ -1,179 +1,102 @@
 "use client";
-import { useRef, useState } from "react";
-import { ChatInput } from "@/components/ChatInput";
-import { AgentActivity } from "@/components/AgentActivity";
-import { ItineraryView } from "@/components/ItineraryView";
-import type { AgentEvent, Itinerary, PlaceVisionResult } from "@/lib/types";
+import { useRef } from "react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Hero } from "@/components/landing/Hero";
+import type { Destination, EarthGlobeHandle } from "@/components/landing/EarthGlobe";
 
-interface SubmitArgs {
-  query: string;
-  budgetUSD?: number;
-  imageDataUrl?: string;
-  confirmedDestination?: string;
-}
+const EarthGlobe = dynamic(
+  () => import("@/components/landing/EarthGlobe").then((m) => m.EarthGlobe as unknown as React.ComponentType<Record<string, unknown>>),
+  { ssr: false, loading: () => <GlobeFallback /> }
+);
 
-interface Final {
-  itinerary: Itinerary;
-  spokenSummary: string;
-  attempts: number;
-  verified: boolean;
-}
+const DESTINATIONS: Destination[] = [
+  { id: "japan",   label: "Japan — Tokyo",   lat: 35.6762, lng: 139.6503, color: "#bd0029" },
+  { id: "italy",   label: "Italy — Rome (soon)",     lat: 41.9028, lng: 12.4964, color: "#94a3b8" },
+  { id: "iceland", label: "Iceland — Reykjavík (soon)", lat: 64.1466, lng: -21.9426, color: "#94a3b8" },
+  { id: "morocco", label: "Morocco — Marrakech (soon)", lat: 31.6295, lng: -7.9811, color: "#94a3b8" },
+  { id: "thailand",label: "Thailand — Bangkok (soon)", lat: 13.7563, lng: 100.5018, color: "#94a3b8" },
+];
 
-export default function Home() {
-  const [events, setEvents] = useState<AgentEvent[]>([]);
-  const [criticIssues, setCriticIssues] = useState<{ issues: string[]; attempt: number } | null>(null);
-  const [vision, setVision] = useState<PlaceVisionResult | null>(null);
-  const [pendingImage, setPendingImage] = useState<string | undefined>();
-  const [pendingArgs, setPendingArgs] = useState<SubmitArgs | null>(null);
-  const [final, setFinal] = useState<Final | null>(null);
-  const [running, setRunning] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [budgetUSD, setBudgetUSD] = useState<number | undefined>();
-  const abortRef = useRef<AbortController | null>(null);
+export default function Landing() {
+  const router = useRouter();
+  const globeRef = useRef<EarthGlobeHandle | null>(null);
 
-  async function start(args: SubmitArgs) {
-    setEvents([]);
-    setCriticIssues(null);
-    setVision(null);
-    setFinal(null);
-    setError(null);
-    setBudgetUSD(args.budgetUSD);
-    setPendingImage(args.imageDataUrl);
-    setPendingArgs(args);
-    setRunning(true);
-
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
-
-    try {
-      const resp = await fetch("/api/plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: args.query,
-          budgetUSD: args.budgetUSD,
-          imageDataUrl: args.imageDataUrl,
-          confirmedDestination: args.confirmedDestination,
-        }),
-        signal: ctrl.signal,
-      });
-      if (!resp.body) throw new Error("no response body");
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          handleEvent(JSON.parse(line));
-        }
-      }
-      if (buffer.trim()) handleEvent(JSON.parse(buffer));
-    } catch (err) {
-      if (!ctrl.signal.aborted) setError(String(err));
-    } finally {
-      setRunning(false);
+  async function goToCountry(dest: Destination) {
+    if (globeRef.current) {
+      await globeRef.current.flyTo(dest);
     }
-  }
-
-  function handleEvent(ev: { type: string } & Record<string, unknown>) {
-    switch (ev.type) {
-      case "agent":
-        setEvents((prev) => [...prev, { agent: ev.agent as string, status: ev.status as AgentEvent["status"], detail: ev.detail as string | undefined }]);
-        break;
-      case "needsConfirmation":
-        setVision(ev.vision as PlaceVisionResult);
-        break;
-      case "criticIssues":
-        setCriticIssues({ issues: ev.issues as string[], attempt: ev.attempt as number });
-        break;
-      case "result":
-        setFinal({
-          itinerary: ev.itinerary as Itinerary,
-          spokenSummary: ev.spokenSummary as string,
-          attempts: ev.attempts as number,
-          verified: ev.verified as boolean,
-        });
-        setCriticIssues(null);
-        break;
-      case "error":
-        setError(ev.message as string);
-        break;
+    if (dest.id !== "japan") {
+      // Future: route to other countries. For now, fall back to Japan.
+      router.push(`/plan/japan`);
+      return;
     }
-  }
-
-  function confirmDestination(choice: string) {
-    if (!pendingArgs) return;
-    setVision(null);
-    start({ ...pendingArgs, confirmedDestination: choice });
+    router.push(`/plan/${dest.id}`);
   }
 
   return (
-    <div className="min-h-screen washi">
-      <div className="max-w-5xl mx-auto px-4 py-10 sm:py-14">
-        <header className="mb-8">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-8 w-8 rounded-lg bg-[color:var(--accent)] flex items-center justify-center text-white font-bold">W</div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight font-display">Wanderly</h1>
+    <div className="min-h-screen washi relative overflow-hidden">
+      <Nav />
+
+      <div className="relative max-w-6xl mx-auto px-4 pt-14 pb-10">
+        <Hero onPickJapan={() => goToCountry(DESTINATIONS[0])} />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, ease: "easeOut", delay: 0.2 }}
+        className="relative max-w-6xl mx-auto px-4 pb-20"
+      >
+        <div className="relative rounded-[2rem] border bg-gradient-to-b from-white to-[color:var(--bg)] overflow-hidden" style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-lg)" }}>
+          <EarthGlobe destinations={DESTINATIONS} onSelect={goToCountry} height={560} />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white/70 to-transparent" />
+          <div className="absolute left-6 bottom-5 text-[11px] uppercase tracking-[0.22em] text-[color:var(--ink-faint)]">
+            Day 1: <span className="text-[color:var(--ink-soft)]">Japan only · more cities soon</span>
           </div>
-          <p className="text-sm text-[color:var(--ink-faint)]">A team of AI agents that plans, verifies, and self-corrects your trip.</p>
-        </header>
-
-        <ChatInput onSubmit={start} disabled={running} />
-
-        {vision && pendingArgs && (
-          <div className="mt-4 rounded-2xl border bg-white p-4" style={{ borderColor: "var(--border)" }}>
-            <div className="text-sm mb-2">
-              I&apos;m only <span className="font-semibold">{Math.round(vision.confidence * 100)}%</span> sure this is{" "}
-              <span className="font-semibold">{vision.guess}</span>. Pick the right one to continue:
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => confirmDestination(vision.guess)} className="px-3 py-1.5 rounded-full bg-[color:var(--accent)] text-white text-sm hover:opacity-95">
-                {vision.guess}
-              </button>
-              {vision.alternates.map((alt) => (
-                <button key={alt} onClick={() => confirmDestination(alt)} className="px-3 py-1.5 rounded-full bg-[color:var(--bg)] border text-sm hover:bg-white" style={{ borderColor: "var(--border)" }}>
-                  {alt}
-                </button>
-              ))}
-            </div>
-            {pendingImage && (
-              <div className="mt-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={pendingImage} alt="" className="h-24 rounded-lg border" style={{ borderColor: "var(--border)" }} />
-              </div>
-            )}
-          </div>
-        )}
-
-        {error && (
-          <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-            {error}
-          </div>
-        )}
-
-        <div className="mt-8 space-y-6">
-          {(events.length > 0 || running) && <AgentActivity events={events} criticIssues={criticIssues} />}
-          {final && (
-            <ItineraryView
-              itinerary={final.itinerary}
-              budgetUSD={budgetUSD}
-              attempts={final.attempts}
-              verified={final.verified}
-              spokenSummary={final.spokenSummary || undefined}
-            />
-          )}
         </div>
 
-        <footer className="mt-12 text-center text-xs text-[color:var(--ink-faint)]">
-          Built for a multi-agent hackathon. Plan, verify, self-correct.
-        </footer>
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+          <Tile title="Plans" body="A planner agent calls flight, hotel, weather, and food specialists in parallel." />
+          <Tile title="Verifies" body="A critic re-checks every claim against live data and the budget you set." />
+          <Tile title="Self-corrects" body="When something doesn’t hold up, the team revises automatically." />
+        </div>
+      </motion.div>
+
+      <footer className="py-10 text-center text-xs text-[color:var(--ink-faint)]">
+        Built for a multi-agent hackathon · plan, verify, self-correct
+      </footer>
+    </div>
+  );
+}
+
+function Nav() {
+  return (
+    <header className="relative max-w-6xl mx-auto px-4 pt-6 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className="h-8 w-8 rounded-lg bg-[color:var(--ink)] flex items-center justify-center text-white font-display font-semibold">W</div>
+        <span className="font-display text-lg tracking-tight">Wanderly</span>
+      </div>
+      <div className="text-xs text-[color:var(--ink-faint)]">a multi-agent travel concierge</div>
+    </header>
+  );
+}
+
+function Tile({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-2xl border bg-white p-4" style={{ borderColor: "var(--border)" }}>
+      <div className="text-[11px] uppercase tracking-[0.22em] text-[color:var(--accent)] mb-1.5">{title}</div>
+      <div className="text-[color:var(--ink-soft)] leading-relaxed">{body}</div>
+    </div>
+  );
+}
+
+function GlobeFallback() {
+  return (
+    <div className="w-full" style={{ height: 560 }}>
+      <div className="h-full w-full flex items-center justify-center text-[color:var(--ink-faint)] text-sm">
+        Loading globe…
       </div>
     </div>
   );
