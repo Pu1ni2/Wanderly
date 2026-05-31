@@ -5,19 +5,21 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import type { Destination, EarthGlobeHandle } from "@/components/landing/EarthGlobe";
 import { VoicePanel } from "@/components/voice/VoicePanel";
+import { CountryPicker } from "@/components/landing/CountryPicker";
+import { COUNTRIES } from "@/lib/countries";
 
 const EarthGlobe = dynamic(
   () => import("@/components/landing/EarthGlobe").then((m) => m.EarthGlobe as unknown as React.ComponentType<Record<string, unknown>>),
   { ssr: false, loading: () => <GlobeSkeleton /> }
 );
 
-const DESTINATIONS: Destination[] = [
-  { id: "japan",    label: "Japan · Tokyo",          lat: 35.6762, lng: 139.6503, active: true  },
-  { id: "italy",    label: "Italy · Rome (soon)",    lat: 41.9028, lng:  12.4964 },
-  { id: "iceland",  label: "Iceland · Reykjavík (soon)", lat: 64.1466, lng: -21.9426 },
-  { id: "morocco",  label: "Morocco · Marrakech (soon)", lat: 31.6295, lng:  -7.9811 },
-  { id: "thailand", label: "Thailand · Bangkok (soon)",  lat: 13.7563, lng: 100.5018 },
-];
+const DESTINATIONS: Destination[] = COUNTRIES.filter((c) => c.lat != null && c.lng != null).map((c) => ({
+  id: c.slug,
+  label: `${c.flag ?? "🌍"} ${c.name}${c.capital ? " · " + c.capital : ""}`,
+  lat: c.lat as number,
+  lng: c.lng as number,
+  active: c.slug === "japan",
+}));
 
 export default function Landing() {
   const router = useRouter();
@@ -25,7 +27,11 @@ export default function Landing() {
 
   async function goToCountry(dest: Destination) {
     try { await globeRef.current?.flyTo(dest); } catch {}
-    router.push(`/plan/${dest.id !== "japan" ? "japan" : dest.id}`);
+    router.push(`/plan/${dest.id}`);
+  }
+
+  function goToSlug(slug: string) {
+    router.push(`/plan/${slug}`);
   }
 
   return (
@@ -79,17 +85,20 @@ export default function Landing() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.85, delay: 0.28 }}
-              className="mt-9 flex flex-wrap items-center gap-4"
+              className="mt-9 space-y-4"
             >
-              <button
-                onClick={() => goToCountry(DESTINATIONS[0])}
-                className="group inline-flex items-center gap-2.5 pl-6 pr-5 py-3.5 rounded-full bg-stone-900 text-white text-[14px] font-medium tracking-tight hover:opacity-95 transition"
-                style={{ boxShadow: "0 16px 40px -16px rgba(28,27,31,0.45)" }}
-              >
-                Plan a trip to Japan
-                <span className="inline-block transition-transform group-hover:translate-x-0.5 text-[15px]">→</span>
-              </button>
-              <span className="text-xs text-stone-500 tracking-tight">or speak to the concierge</span>
+              <CountryPicker onSelect={goToSlug} />
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  onClick={() => router.push("/plan/japan")}
+                  className="group inline-flex items-center gap-2.5 pl-6 pr-5 py-3.5 rounded-full bg-stone-900 text-white text-[14px] font-medium tracking-tight hover:opacity-95 transition"
+                  style={{ boxShadow: "0 16px 40px -16px rgba(28,27,31,0.45)" }}
+                >
+                  Try the Japan showcase
+                  <span className="inline-block transition-transform group-hover:translate-x-0.5 text-[15px]">→</span>
+                </button>
+                <span className="text-xs text-stone-500 tracking-tight">or just speak to the concierge below</span>
+              </div>
             </motion.div>
 
             <motion.div
