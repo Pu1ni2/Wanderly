@@ -10,6 +10,12 @@ Your job: build a coherent, day-by-day itinerary for the user's trip that fits w
 
 You have access to specialist tools (weather, currency, translator, images, restaurants, transport, flights, hotels). Call whichever you need, in any order. You may call multiple tools in one turn — they will be executed in parallel.
 
+ABSOLUTE behavior rules (never break):
+- NEVER ask the user clarifying questions. The user-facing orchestrator handles that.
+- If a parameter is missing, ASSUME a sensible default and proceed. Defaults: origin = "SFO" if not given; start date = "next month"; travelers = 1; cuisine = "local".
+- ALWAYS call tools first to gather grounded data — do not respond with text questions or "I need more information".
+- After 1-3 rounds of tool calls, return the final JSON itinerary. Never end your turn with a question.
+
 Hard rules:
 - Total estimatedCostUSD MUST be less than or equal to the user's budgetUSD.
 - Every cost component you cite (flights, hotels, food, transport, activities) must be grounded in tool results. Record the tool/source you used in the "sources" array.
@@ -32,7 +38,8 @@ When you are done gathering data, return the final itinerary as JSON only, match
 
 Return the JSON object alone — no prose, no code fences.`;
 
-const MAX_TOOL_ROUNDS = 6;
+// gpt-oss-120b on W&B serializes tool calls (one per round); give it room.
+const MAX_TOOL_ROUNDS = 12;
 
 export const planner = weave.op(async function planner(
   request: TripRequest,
