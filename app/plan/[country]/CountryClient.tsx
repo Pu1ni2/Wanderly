@@ -5,8 +5,7 @@ import { AgentActivity } from "@/components/AgentActivity";
 import { ItineraryView } from "@/components/ItineraryView";
 import { AgentStatusProvider, useAgentStatus } from "@/components/avatars/AgentStatusContext";
 import { VoicePanel } from "@/components/voice/VoicePanel";
-import { AgentGrid } from "@/components/agents/AgentGrid";
-import { AgentLiveTicker } from "@/components/agents/AgentLiveTicker";
+import { AgentConstellation } from "@/components/agents/AgentConstellation";
 import { usePlanStream } from "@/lib/usePlanStream";
 import type { Theme } from "@/lib/theme";
 
@@ -65,20 +64,18 @@ function Inner({ theme, placeholder, defaultDestination, capital, language, gree
         />
       </div>
 
-      {/* Live agent feed (ticker) */}
-      <SectionLabel title="Live agent feed" subtitle="Every tool call your concierge makes shows up here, with its source." />
+      {/* The team constellation — agents + live "now" line in one panel */}
+      <SectionLabel title="Your team" subtitle="Hover any node for its role and data source. The bottom line shows what's running right now." />
       <div className="mb-6">
-        <AgentLiveTicker />
+        <AgentConstellation />
       </div>
 
-      {/* Specialists grid + text-input column */}
-      <SectionLabel title="Your team of specialists" subtitle="Nine agents that look up real data and verify each other." />
-      <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-6 lg:gap-8">
-        {/* Left column: input + side info */}
+      {/* Text-input column */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6 lg:gap-8">
         <motion.div
           layout
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="space-y-4 order-2 lg:order-1"
+          className="space-y-4"
         >
           <div>
             <SectionLabel title="Plan in writing" subtitle="Type your request if you'd rather not speak." compact />
@@ -113,16 +110,14 @@ function Inner({ theme, placeholder, defaultDestination, capital, language, gree
             <div className="rounded-3xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{plan.error}</div>
           )}
 
-          <SideCard accent={theme.accent} />
         </motion.div>
 
-        {/* Right column: agent grid */}
+        {/* Right column: SideCard (how it works) */}
         <motion.div
           layout
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="order-1 lg:order-2"
         >
-          <AgentGrid />
+          <SideCard accent={theme.accent} />
         </motion.div>
       </div>
 
