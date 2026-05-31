@@ -30,7 +30,15 @@ export function AgentStage({ height = 320 }: { height?: number }) {
   const items = layout();
 
   return (
-    <div className="rounded-3xl border bg-white overflow-hidden" style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-md)", height }}>
+    <div
+      className="rounded-3xl border overflow-hidden relative"
+      style={{
+        borderColor: "var(--border)",
+        boxShadow: "var(--shadow-md)",
+        height,
+        background: "radial-gradient(ellipse at 50% 110%, #f7d6e0 0%, #f7efde 35%, #f4ecdc 70%, #ebe0c1 100%)",
+      }}
+    >
       <Canvas dpr={[1, 1.5]} gl={{ antialias: true, preserveDrawingBuffer: false }}>
         <PerspectiveCamera makeDefault position={[0, 2.4, 6.5]} fov={42} />
         <ambientLight intensity={0.65} />

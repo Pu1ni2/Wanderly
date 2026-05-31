@@ -1,45 +1,51 @@
-import { notFound } from "next/navigation";
-import { themes, themeFor } from "@/lib/theme";
 import { JapanScene } from "@/components/themed/JapanScene";
+import { CountryScene } from "@/components/themed/CountryScene";
 import { CountryClient } from "./CountryClient";
+import { themeFor } from "@/lib/theme";
+import { COUNTRIES, countryForSlug } from "@/lib/countries";
 
 type Params = { country: string };
 
-const META: Record<string, { kanji: string; romaji: string; subtitle: string; placeholder: string; defaultDestination: string }> = {
-  japan: {
-    kanji: "日本",
-    romaji: "Nihon",
-    subtitle: "Build a trip across Tokyo, Kyoto, and beyond — verified before you see it.",
-    placeholder: 'Try: "Plan a 4-day trip to Tokyo for 2 people, $2500, with vegetarian food and onsen."',
-    defaultDestination: "Japan",
-  },
-};
-
 export default async function CountryPage({ params }: { params: Promise<Params> }) {
   const { country } = await params;
-  const key = country.toLowerCase();
-  if (!themes[key]) notFound();
-  const theme = themeFor(key);
-  const meta = META[key];
+  const slug = country.toLowerCase();
+  const meta = countryForSlug(slug);
 
-  if (key === "japan") {
+  // Japan keeps its bespoke scene; everywhere else uses the shared CountryScene.
+  if (slug === "japan") {
+    const theme = themeFor("japan");
     return (
-      <JapanScene kanji={meta.kanji} romaji={meta.romaji} subtitle={meta.subtitle}>
-        <CountryClient theme={theme} placeholder={meta.placeholder} defaultDestination={meta.defaultDestination} />
+      <JapanScene
+        kanji="日本"
+        romaji="Nihon"
+        subtitle="Build a trip across Tokyo, Kyoto, and beyond — verified before you see it."
+      >
+        <CountryClient
+          theme={theme}
+          placeholder='Try: "Plan a 4-day trip to Tokyo for 2 people, $2500, with vegetarian food and onsen."'
+          defaultDestination="Japan"
+        />
       </JapanScene>
     );
   }
 
+  const accent = meta.accent;
+  const theme = {
+    ...themeFor(undefined),
+    accent: accent ?? "#bd0029",
+  };
+
   return (
-    <div className="min-h-screen washi">
-      <div className="max-w-5xl mx-auto px-4 py-12">
-        <h1 className={`text-5xl ${theme.fontDisplayClass}`}>{country}</h1>
-        <CountryClient theme={theme} placeholder={meta?.placeholder} defaultDestination={meta?.defaultDestination ?? country} />
-      </div>
-    </div>
+    <CountryScene country={meta}>
+      <CountryClient
+        theme={theme}
+        placeholder={`Try: "Plan a 5-day trip to ${meta.name} for 2 people, $2500, local food and culture."`}
+        defaultDestination={meta.name}
+      />
+    </CountryScene>
   );
 }
 
 export function generateStaticParams() {
-  return Object.keys(themes).map((country) => ({ country }));
+  return COUNTRIES.map((c) => ({ country: c.slug }));
 }

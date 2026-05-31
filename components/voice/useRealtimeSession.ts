@@ -113,7 +113,8 @@ export function useRealtimeSession({ onPlanTrip }: Options = {}) {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      const sdpResp = await fetch(`https://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`, {
+      // GA endpoint
+      let sdpResp = await fetch(`https://api.openai.com/v1/realtime/calls?model=${encodeURIComponent(model)}`, {
         method: "POST",
         body: offer.sdp,
         headers: {
@@ -121,6 +122,18 @@ export function useRealtimeSession({ onPlanTrip }: Options = {}) {
           "Content-Type": "application/sdp",
         },
       });
+      // One-shot fallback to the legacy beta endpoint if GA isn't enabled on the account.
+      if (!sdpResp.ok && (sdpResp.status === 404 || sdpResp.status === 400)) {
+        sdpResp = await fetch(`https://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`, {
+          method: "POST",
+          body: offer.sdp,
+          headers: {
+            Authorization: `Bearer ${clientSecret}`,
+            "Content-Type": "application/sdp",
+            "OpenAI-Beta": "realtime=v1",
+          },
+        });
+      }
       if (!sdpResp.ok) throw new Error(`sdp: ${sdpResp.status} ${await sdpResp.text()}`);
       const answerSdp = await sdpResp.text();
       await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
