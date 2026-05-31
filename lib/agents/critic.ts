@@ -1,4 +1,5 @@
 import { z } from "zod";
+import * as weave from "weave";
 import { MODELS } from "@/lib/openai";
 import { callJSON } from "@/lib/util/json";
 import type { CriticResult, Itinerary, TripRequest } from "@/lib/types";
@@ -26,7 +27,7 @@ When rejecting, list each problem as a separate concrete, fixable string in issu
 
 Output JSON only: {"approved": boolean, "issues": ["..."]}`;
 
-export async function critic(draft: Itinerary, request: TripRequest): Promise<CriticResult> {
+export const critic = weave.op(async function critic(draft: Itinerary, request: TripRequest): Promise<CriticResult> {
   const user = [
     "User request:",
     JSON.stringify(request, null, 2),
@@ -42,7 +43,7 @@ export async function critic(draft: Itinerary, request: TripRequest): Promise<Cr
     schema: Schema,
     temperature: 0.2,
   });
-}
+});
 
 export function localChecks(draft: Itinerary, request: TripRequest): string[] {
   const issues: string[] = [];

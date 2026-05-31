@@ -1,4 +1,5 @@
 import { z } from "zod";
+import * as weave from "weave";
 import { client, MODELS } from "@/lib/openai";
 import type { PlaceVisionResult } from "@/lib/types";
 
@@ -13,7 +14,7 @@ const Schema = z.object({
   alternates: z.array(z.string()).max(5),
 });
 
-export async function placeVision(input: PlaceVisionInput): Promise<PlaceVisionResult> {
+export const placeVision = weave.op(async function placeVision(input: PlaceVisionInput): Promise<PlaceVisionResult> {
   const imageRef = input.imageUrl ?? input.imageDataUrl;
   if (!imageRef) {
     return { guess: "(no image provided)", confidence: 0, alternates: [] };
@@ -53,4 +54,4 @@ export async function placeVision(input: PlaceVisionInput): Promise<PlaceVisionR
     }
   }
   return { guess: "unknown", confidence: 0, alternates: [] };
-}
+});

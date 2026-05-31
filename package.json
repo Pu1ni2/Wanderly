@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "eval:planner": "dotenv -e .env.local -- tsx scripts/eval-planner.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -19,6 +20,7 @@
     "react-globe.gl": "^2.38.0",
     "three": "^0.184.0",
     "three-globe": "^2.45.2",
+    "weave": "^0.14.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -27,9 +29,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.184.1",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }

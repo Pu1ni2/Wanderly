@@ -1,4 +1,5 @@
 import { z } from "zod";
+import * as weave from "weave";
 import { MODELS } from "@/lib/openai";
 import { callJSON } from "@/lib/util/json";
 
@@ -23,7 +24,7 @@ const Schema = z.object({
   ),
 });
 
-export async function translator(input: TranslatorInput): Promise<TranslatorResult> {
+export const translator = weave.op(async function translator(input: TranslatorInput): Promise<TranslatorResult> {
   const result = await callJSON({
     model: MODELS.specialist,
     system:
@@ -35,6 +36,6 @@ export async function translator(input: TranslatorInput): Promise<TranslatorResu
   return {
     targetLanguage: input.targetLanguage,
     translations: result.translations,
-    source: "openai",
+    source: "wandb-inference",
   };
-}
+});

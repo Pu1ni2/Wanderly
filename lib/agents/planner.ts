@@ -1,5 +1,6 @@
 import type OpenAI from "openai";
-import { client, MODELS } from "@/lib/openai";
+import * as weave from "weave";
+import { llm, MODELS } from "@/lib/openai";
 import type { Itinerary, TripRequest } from "@/lib/types";
 import { SPECIALIST_TOOLS, dispatchTool, type ToolReporter } from "@/lib/tools";
 
@@ -33,10 +34,11 @@ Return the JSON object alone — no prose, no code fences.`;
 
 const MAX_TOOL_ROUNDS = 6;
 
-export async function planner(
+export const planner = weave.op(async function planner(
   request: TripRequest,
   feedback?: string[],
-  report?: ToolReporter
+  report?: ToolReporter,
+  modelOverride?: string,
 ): Promise<Itinerary> {
   const userMsg = [
     `Plan this trip:`,
@@ -58,8 +60,8 @@ export async function planner(
   ];
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const resp = await client.chat.completions.create({
-      model: MODELS.planner,
+    const resp = await llm.chat.completions.create({
+      model: modelOverride ?? MODELS.planner,
       messages,
       tools: SPECIALIST_TOOLS,
       temperature: 0.5,
@@ -101,4 +103,4 @@ export async function planner(
   }
 
   throw new Error("planner: exceeded max tool-call rounds without final JSON");
-}
+});

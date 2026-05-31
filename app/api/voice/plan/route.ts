@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { orchestrate, type OrchestratorInput } from "@/lib/orchestrator";
+import { ensureWeave } from "@/lib/weave";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -11,6 +12,7 @@ interface Body {
 }
 
 export async function POST(req: NextRequest) {
+  await ensureWeave();
   let body: Body;
   try {
     body = await req.json();

@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { dispatchTool, type ToolName } from "@/lib/tools";
+import { ensureWeave } from "@/lib/weave";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -16,6 +17,7 @@ const SPECIALIST_TOOLS: Set<ToolName> = new Set([
 ]);
 
 export async function POST(req: NextRequest) {
+  await ensureWeave();
   let body: { name?: string; args?: Record<string, unknown> };
   try {
     body = await req.json();

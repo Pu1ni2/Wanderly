@@ -1,4 +1,5 @@
 import type OpenAI from "openai";
+import * as weave from "weave";
 import { weather } from "@/lib/agents/specialists/weather";
 import { currency } from "@/lib/agents/specialists/currency";
 import { translator } from "@/lib/agents/specialists/translator";
@@ -150,7 +151,7 @@ export const SPECIALIST_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
 
 export type ToolReporter = (name: ToolName, status: "started" | "done" | "error", detail?: string) => void;
 
-export async function dispatchTool(name: string, args: Record<string, unknown>, report?: ToolReporter): Promise<unknown> {
+export const dispatchTool = weave.op(async function dispatchTool(name: string, args: Record<string, unknown>, report?: ToolReporter): Promise<unknown> {
   const tn = name as ToolName;
   report?.(tn, "started", JSON.stringify(args).slice(0, 120));
   try {
@@ -173,4 +174,4 @@ export async function dispatchTool(name: string, args: Record<string, unknown>, 
     report?.(tn, "error", String(err));
     throw err;
   }
-}
+});

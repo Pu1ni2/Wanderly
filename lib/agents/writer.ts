@@ -1,4 +1,5 @@
 import { z } from "zod";
+import * as weave from "weave";
 import { MODELS } from "@/lib/openai";
 import { callJSON } from "@/lib/util/json";
 import type { Itinerary } from "@/lib/types";
@@ -36,7 +37,7 @@ export interface WriterOutput {
   spokenSummary: string;
 }
 
-export async function writer(approved: Itinerary): Promise<WriterOutput> {
+export const writer = weave.op(async function writer(approved: Itinerary): Promise<WriterOutput> {
   const polished = await callJSON({
     model: MODELS.writer,
     system: SYSTEM,
@@ -52,4 +53,4 @@ export async function writer(approved: Itinerary): Promise<WriterOutput> {
   };
 
   return { itinerary, spokenSummary: polished.spokenSummary };
-}
+});

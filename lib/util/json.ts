@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import { client } from "@/lib/openai";
+import { llm } from "@/lib/openai";
 
 type ChatMsg = { role: "system" | "user" | "assistant"; content: string };
 
@@ -18,7 +18,7 @@ export async function callJSON<T>({ model, system, user, schema, temperature = 0
   ];
 
   for (let attempt = 0; attempt < 2; attempt++) {
-    const resp = await client.chat.completions.create({
+    const resp = await llm.chat.completions.create({
       model,
       messages,
       temperature,
