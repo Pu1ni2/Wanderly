@@ -54,9 +54,22 @@ export const EarthGlobe = forwardRef<EarthGlobeHandle, Props>(function EarthGlob
   { destinations, onSelect, height = 560, autoRotateSpeed = 0.35 },
   ref
 ) {
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const globeRef = useRef<GlobeMethods>(undefined as unknown as GlobeMethods);
   const [countries, setCountries] = useState<GeoFeature[]>([]);
+  const [width, setWidth] = useState<number>(0);
   const creamUrl = useMemo(() => creamTextureDataUrl(), []);
+
+  // Track container width so the globe renders at the right size (not window width)
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const el = wrapperRef.current;
+    const update = () => setWidth(el.clientWidth || 0);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -101,10 +114,10 @@ export const EarthGlobe = forwardRef<EarthGlobeHandle, Props>(function EarthGlob
   }), []);
 
   return (
-    <div style={{ width: "100%", height }} className="relative">
+    <div ref={wrapperRef} style={{ width: "100%", height }} className="relative overflow-hidden">
       <Globe
         ref={globeRef}
-        width={undefined}
+        width={width || undefined}
         height={height}
         backgroundColor="rgba(0,0,0,0)"
         showAtmosphere

@@ -48,9 +48,9 @@ export default function Landing() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[color:var(--ink-faint)] mb-6"
+              className="flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-stone-500 mb-6"
             >
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--accent)] pulse-dot" />
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-700 pulse-dot" />
               Wanderly — a team of specialists
             </motion.div>
 
@@ -58,7 +58,7 @@ export default function Landing() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.85, delay: 0.05 }}
-              className="font-display text-[64px] sm:text-[88px] lg:text-[104px] leading-[0.95] tracking-[-0.035em] text-[color:var(--ink)]"
+              className="font-display text-[64px] sm:text-[88px] lg:text-[104px] leading-[0.95] tracking-[-0.035em] text-stone-900"
             >
               Travel
               <br />
@@ -69,7 +69,7 @@ export default function Landing() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.85, delay: 0.18 }}
-              className="mt-7 max-w-md text-[17px] leading-[1.55] text-[color:var(--ink-soft)]"
+              className="mt-7 max-w-md text-[17px] leading-[1.55] text-stone-600"
             >
               Wanderly plans your trip with a team of AI specialists working in parallel. A critic
               verifies every claim against live data — and quietly fixes anything that doesn’t.
@@ -83,13 +83,13 @@ export default function Landing() {
             >
               <button
                 onClick={() => goToCountry(DESTINATIONS[0])}
-                className="group inline-flex items-center gap-2.5 pl-6 pr-5 py-3.5 rounded-full bg-[color:var(--ink)] text-white text-[14px] font-medium tracking-tight hover:opacity-95 transition"
+                className="group inline-flex items-center gap-2.5 pl-6 pr-5 py-3.5 rounded-full bg-stone-900 text-white text-[14px] font-medium tracking-tight hover:opacity-95 transition"
                 style={{ boxShadow: "0 16px 40px -16px rgba(28,27,31,0.45)" }}
               >
                 Plan a trip to Japan
                 <span className="inline-block transition-transform group-hover:translate-x-0.5 text-[15px]">→</span>
               </button>
-              <span className="text-xs text-[color:var(--ink-faint)] tracking-tight">or speak to the concierge</span>
+              <span className="text-xs text-stone-500 tracking-tight">or speak to the concierge</span>
             </motion.div>
 
             <motion.div
@@ -134,7 +134,7 @@ export default function Landing() {
         </motion.div>
       </main>
 
-      <footer className="relative py-12 mt-12 text-center text-[11px] tracking-[0.22em] uppercase text-[color:var(--ink-faint)]">
+      <footer className="relative py-12 mt-12 text-center text-[11px] tracking-[0.22em] uppercase text-stone-500">
         plan · verify · self-correct
       </footer>
 
@@ -147,13 +147,13 @@ function Nav() {
   return (
     <header className="relative max-w-[1240px] mx-auto px-6 sm:px-8 pt-7 flex items-center justify-between">
       <a href="/" className="flex items-center gap-2.5">
-        <div className="h-8 w-8 rounded-xl bg-[color:var(--ink)] flex items-center justify-center text-white font-display text-[15px] font-semibold">W</div>
+        <div className="h-8 w-8 rounded-xl bg-stone-900 flex items-center justify-center text-white font-display text-[15px] font-semibold">W</div>
         <span className="font-display text-[17px] tracking-tight">Wanderly</span>
       </a>
-      <div className="hidden sm:flex items-center gap-6 text-[12px] tracking-tight text-[color:var(--ink-soft)]">
-        <a href="#how" className="hover:text-[color:var(--ink)] transition">How it works</a>
-        <a href="/plan/japan" className="hover:text-[color:var(--ink)] transition">Try Japan</a>
-        <span className="text-[color:var(--ink-faint)]">v0.1 · hackathon</span>
+      <div className="hidden sm:flex items-center gap-6 text-[12px] tracking-tight text-stone-600">
+        <a href="#how" className="hover:text-stone-900 transition">How it works</a>
+        <a href="/plan/japan" className="hover:text-stone-900 transition">Try Japan</a>
+        <span className="text-stone-500">v0.1 · hackathon</span>
       </div>
     </header>
   );
@@ -162,8 +162,8 @@ function Nav() {
 function Stat({ number, label }: { number: string; label: string }) {
   return (
     <div>
-      <div className="font-display text-2xl tracking-tight text-[color:var(--ink)]">{number}</div>
-      <div className="text-[11px] uppercase tracking-[0.22em] text-[color:var(--ink-faint)]">{label}</div>
+      <div className="font-display text-2xl tracking-tight text-stone-900">{number}</div>
+      <div className="text-[11px] uppercase tracking-[0.22em] text-stone-500">{label}</div>
     </div>
   );
 }
@@ -172,17 +172,17 @@ function Tile({ chapter, title, body }: { chapter: string; title: string; body: 
   return (
     <div className="rounded-2xl border bg-white/70 backdrop-blur p-5" style={{ borderColor: "var(--border)" }}>
       <div className="flex items-baseline gap-2 mb-2">
-        <span className="font-display text-[15px] text-[color:var(--accent)]">{chapter}</span>
+        <span className="font-display text-[15px] text-red-700">{chapter}</span>
         <span className="text-[14px] font-medium tracking-tight">{title}</span>
       </div>
-      <div className="text-[13px] leading-relaxed text-[color:var(--ink-soft)]">{body}</div>
+      <div className="text-[13px] leading-relaxed text-stone-600">{body}</div>
     </div>
   );
 }
 
 function GlobeSkeleton() {
   return (
-    <div className="w-full aspect-square max-w-[560px] mx-auto flex items-center justify-center text-[color:var(--ink-faint)] text-sm">
+    <div className="w-full aspect-square max-w-[560px] mx-auto flex items-center justify-center text-stone-500 text-sm">
       Loading globe…
     </div>
   );

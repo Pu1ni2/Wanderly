@@ -25,14 +25,14 @@ export function ItineraryView({ itinerary, budgetUSD, attempts, verified, spoken
           <h2 className={`text-2xl sm:text-3xl tracking-tight ${displayFontClass}`}>{itinerary.destination}</h2>
           <CriticBadge attempts={attempts} verified={verified} />
         </div>
-        <p className="text-[15px] text-[color:var(--ink-soft)] mb-5 leading-relaxed">{itinerary.summary}</p>
+        <p className="text-[15px] text-stone-600 mb-5 leading-relaxed">{itinerary.summary}</p>
         <BudgetMeter spentUSD={itinerary.estimatedCostUSD} budgetUSD={budgetUSD} />
         {itinerary.costBreakdown && (
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[color:var(--ink-faint)]">
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-500">
             {Object.entries(itinerary.costBreakdown).map(([k, v]) => (
               <span key={k}>
                 <span className="capitalize">{k}</span>:{" "}
-                <span className="font-medium text-[color:var(--ink)]">${Number(v).toLocaleString()}</span>
+                <span className="font-medium text-stone-900">${Number(v).toLocaleString()}</span>
               </span>
             ))}
           </div>
@@ -47,7 +47,7 @@ export function ItineraryView({ itinerary, budgetUSD, attempts, verified, spoken
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: i * 0.06 }}
-            className="rounded-2xl border p-5 bg-[color:var(--bg)]"
+            className="rounded-2xl border p-5 bg-stone-50"
             style={{ borderColor: "var(--border)" }}
           >
             <div className="flex items-baseline gap-2 mb-3">
@@ -59,7 +59,7 @@ export function ItineraryView({ itinerary, budgetUSD, attempts, verified, spoken
               </span>
               <h3 className={`font-medium text-lg ${displayFontClass}`}>{d.title ?? `Day ${d.day}`}</h3>
             </div>
-            <ul className="space-y-1.5 text-[14px] text-[color:var(--ink-soft)]">
+            <ul className="space-y-1.5 text-[14px] text-stone-600">
               {d.items.map((it, j) => <li key={j} className="leading-relaxed">{it}</li>)}
             </ul>
           </motion.div>
@@ -67,9 +67,9 @@ export function ItineraryView({ itinerary, budgetUSD, attempts, verified, spoken
       </div>
 
       {(itinerary.notes?.length || itinerary.sources?.length) && (
-        <div className="px-6 py-4 border-t text-xs text-[color:var(--ink-faint)] space-y-1" style={{ borderColor: "var(--border)" }}>
-          {itinerary.notes?.length ? <div><span className="font-medium text-[color:var(--ink-soft)]">Notes:</span> {itinerary.notes.join(" · ")}</div> : null}
-          {itinerary.sources?.length ? <div><span className="font-medium text-[color:var(--ink-soft)]">Sources:</span> {itinerary.sources.join(", ")}</div> : null}
+        <div className="px-6 py-4 border-t text-xs text-stone-500 space-y-1" style={{ borderColor: "var(--border)" }}>
+          {itinerary.notes?.length ? <div><span className="font-medium text-stone-600">Notes:</span> {itinerary.notes.join(" · ")}</div> : null}
+          {itinerary.sources?.length ? <div><span className="font-medium text-stone-600">Sources:</span> {itinerary.sources.join(", ")}</div> : null}
         </div>
       )}
     </div>
@@ -94,12 +94,12 @@ function ListenButton({ text }: { text: string }) {
     <div className="mt-4 flex items-center gap-2">
       <button
         onClick={play}
-        className="text-xs px-3 py-1.5 rounded-full bg-[color:var(--bg)] border hover:bg-white transition"
+        className="text-xs px-3 py-1.5 rounded-full bg-stone-50 border hover:bg-white transition"
         style={{ borderColor: "var(--border)" }}
       >
         ▶ Listen
       </button>
-      <span className="text-[10px] text-[color:var(--ink-faint)]">AI-generated voice</span>
+      <span className="text-[10px] text-stone-500">AI-generated voice</span>
     </div>
   );
 }

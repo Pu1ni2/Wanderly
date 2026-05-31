@@ -66,7 +66,7 @@ function Inner({ theme, placeholder, defaultDestination }: Props) {
                   {plan.vision.guess}
                 </button>
                 {plan.vision.alternates.map((alt) => (
-                  <button key={alt} onClick={() => plan.confirmDestination(alt)} className="px-3 py-1.5 rounded-full bg-[color:var(--bg)] border text-sm hover:bg-white" style={{ borderColor: "var(--border)" }}>
+                  <button key={alt} onClick={() => plan.confirmDestination(alt)} className="px-3 py-1.5 rounded-full bg-stone-50 border text-sm hover:bg-white" style={{ borderColor: "var(--border)" }}>
                     {alt}
                   </button>
                 ))}
@@ -89,12 +89,12 @@ function Inner({ theme, placeholder, defaultDestination }: Props) {
         >
           <div className="relative">
             <AgentStage height={420} />
-            <div className="absolute top-3 left-4 text-[10px] uppercase tracking-[0.32em] text-[color:var(--ink-faint)]">
+            <div className="absolute top-3 left-4 text-[10px] uppercase tracking-[0.32em] text-stone-500">
               the team
             </div>
             {plan.running && (
-              <div className="absolute top-3 right-4 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.24em] text-[color:var(--accent)]">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--accent)] pulse-dot" />
+              <div className="absolute top-3 right-4 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.24em] text-red-700">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-700 pulse-dot" />
                 planning
               </div>
             )}
@@ -151,8 +151,8 @@ function Inner({ theme, placeholder, defaultDestination }: Props) {
 function SideCard({ accent }: { accent: string }) {
   return (
     <div className="rounded-3xl border bg-white/70 backdrop-blur p-5" style={{ borderColor: "var(--border)" }}>
-      <div className="text-[10px] uppercase tracking-[0.32em] text-[color:var(--ink-faint)] mb-2">how the team works</div>
-      <ol className="space-y-2.5 text-[13px] leading-relaxed text-[color:var(--ink-soft)]">
+      <div className="text-[10px] uppercase tracking-[0.32em] text-stone-500 mb-2">how the team works</div>
+      <ol className="space-y-2.5 text-[13px] leading-relaxed text-stone-600">
         <Step n="01" body="Orchestrator reads your request and routes it to a planner." accent={accent} />
         <Step n="02" body="Planner fans out to specialists — flights, hotels, weather, food, transport — in parallel." accent={accent} />
         <Step n="03" body="Critic verifies every number against the live data and the budget you set." accent={accent} />
@@ -174,7 +174,7 @@ function Step({ n, body, accent }: { n: string; body: string; accent: string }) 
 function StageFallback() {
   return (
     <div className="rounded-3xl border bg-white" style={{ borderColor: "var(--border)", height: 420 }}>
-      <div className="h-full flex items-center justify-center text-sm text-[color:var(--ink-faint)]">
+      <div className="h-full flex items-center justify-center text-sm text-stone-500">
         Preparing the agent stage…
       </div>
     </div>

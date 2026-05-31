@@ -40,16 +40,16 @@ export function ChatInput({ onSubmit, disabled, placeholder, accent = "#bd0029" 
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder ?? 'Try: "Plan a 4-day trip to Tokyo for 2 people, budget $2500, with local food."'}
         rows={3}
-        className="w-full resize-none bg-transparent outline-none text-[15px] leading-relaxed placeholder:text-[color:var(--ink-faint)]"
+        className="w-full resize-none bg-transparent outline-none text-[15px] leading-relaxed placeholder:text-stone-500"
         onKeyDown={(e) => {
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
         }}
       />
       <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
         <div className="flex items-center gap-2">
-          <span className="text-xs uppercase tracking-wide text-[color:var(--ink-faint)]">Budget</span>
-          <div className="flex items-center bg-[color:var(--bg)] rounded-full px-3 py-1.5 border" style={{ borderColor: "var(--border)" }}>
-            <span className="text-sm text-[color:var(--ink-soft)]">$</span>
+          <span className="text-xs uppercase tracking-wide text-stone-500">Budget</span>
+          <div className="flex items-center bg-stone-50 rounded-full px-3 py-1.5 border" style={{ borderColor: "var(--border)" }}>
+            <span className="text-sm text-stone-600">$</span>
             <input
               type="number"
               value={budget}
@@ -63,7 +63,7 @@ export function ChatInput({ onSubmit, disabled, placeholder, accent = "#bd0029" 
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="text-sm px-3.5 py-1.5 rounded-full border bg-white hover:bg-[color:var(--bg)] transition"
+          className="text-sm px-3.5 py-1.5 rounded-full border bg-white hover:bg-stone-50 transition"
           style={{ borderColor: "var(--border)" }}
         >
           {imageDataUrl ? "Replace photo" : "Plan from a photo"}
@@ -83,7 +83,7 @@ export function ChatInput({ onSubmit, disabled, placeholder, accent = "#bd0029" 
             <button
               type="button"
               onClick={() => setImageDataUrl(undefined)}
-              className="text-xs text-[color:var(--ink-faint)] hover:text-[color:var(--ink)]"
+              className="text-xs text-stone-500 hover:text-stone-900"
             >
               remove
             </button>

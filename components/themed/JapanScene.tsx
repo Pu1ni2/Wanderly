@@ -48,17 +48,17 @@ export function JapanScene({ kanji, romaji, subtitle, children }: Props) {
             </div>
             {romaji && (
               <div className="pb-4">
-                <div className="text-[10px] tracking-[0.4em] uppercase text-[color:var(--ink-faint)] mb-1">Chapter 01</div>
-                <div className="text-[13px] tracking-[0.32em] uppercase text-[color:var(--ink-soft)]">{romaji}</div>
+                <div className="text-[10px] tracking-[0.4em] uppercase text-stone-500 mb-1">Chapter 01</div>
+                <div className="text-[13px] tracking-[0.32em] uppercase text-stone-600">{romaji}</div>
               </div>
             )}
           </div>
 
           <div className="lg:pb-6">
-            <h1 className="font-display text-2xl sm:text-[28px] lg:text-[34px] tracking-tight leading-[1.15] text-[color:var(--ink)] max-w-2xl">
+            <h1 className="font-display text-2xl sm:text-[28px] lg:text-[34px] tracking-tight leading-[1.15] text-stone-900 max-w-2xl">
               {subtitle}
             </h1>
-            <div className="mt-5 flex items-center gap-3 text-[12px] text-[color:var(--ink-faint)]">
+            <div className="mt-5 flex items-center gap-3 text-[12px] text-stone-500">
               <span className="h-px w-12 bg-[color:var(--ink-faint)]/40" />
               <span>verified by a critic agent before you see it</span>
             </div>
@@ -77,12 +77,12 @@ function Nav() {
   return (
     <header className="relative max-w-[1240px] mx-auto px-6 sm:px-8 pt-7 flex items-center justify-between z-10">
       <a href="/" className="flex items-center gap-2.5">
-        <div className="h-8 w-8 rounded-xl bg-[color:var(--ink)] flex items-center justify-center text-white font-display text-[15px] font-semibold">W</div>
+        <div className="h-8 w-8 rounded-xl bg-stone-900 flex items-center justify-center text-white font-display text-[15px] font-semibold">W</div>
         <span className="font-display text-[17px] tracking-tight">Wanderly</span>
       </a>
-      <div className="flex items-center gap-5 text-[12px] tracking-tight text-[color:var(--ink-soft)]">
-        <a href="/" className="hover:text-[color:var(--ink)] transition">← globe</a>
-        <span className="text-[color:var(--ink-faint)] hidden sm:inline">日本 · Japan</span>
+      <div className="flex items-center gap-5 text-[12px] tracking-tight text-stone-600">
+        <a href="/" className="hover:text-stone-900 transition">← globe</a>
+        <span className="text-stone-500 hidden sm:inline">日本 · Japan</span>
       </div>
     </header>
   );

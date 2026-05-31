@@ -24,7 +24,7 @@ const META: Record<string, { label: string; group: "orchestration" | "specialist
 
 function statusColor(status: AgentStatus | undefined) {
   switch (status) {
-    case "started": return "bg-[color:var(--accent)] pulse-dot";
+    case "started": return "bg-red-700 pulse-dot";
     case "done":    return "bg-emerald-500";
     case "error":   return "bg-red-500";
     default:        return "bg-neutral-300";
@@ -51,7 +51,7 @@ export function AgentActivity({ events, criticIssues }: Props) {
 
   if (orchestration.length + specialists.length + review.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed p-6 text-sm text-[color:var(--ink-faint)]" style={{ borderColor: "var(--border)" }}>
+      <div className="rounded-3xl border border-dashed p-6 text-sm text-stone-500" style={{ borderColor: "var(--border)" }}>
         Agent activity will appear here once you submit a request.
       </div>
     );
@@ -59,7 +59,7 @@ export function AgentActivity({ events, criticIssues }: Props) {
 
   return (
     <div className="rounded-3xl border bg-white/85 backdrop-blur-xl p-5" style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-md)" }}>
-      <h2 className="text-[11px] font-medium text-[color:var(--ink-faint)] mb-3 tracking-[0.18em] uppercase">Agent activity</h2>
+      <h2 className="text-[11px] font-medium text-stone-500 mb-3 tracking-[0.18em] uppercase">Agent activity</h2>
       <div className="space-y-4">
         <AgentGroup title="Orchestration" agents={orchestration} latestByAgent={latestByAgent} />
         <AgentGroup title="Specialists (parallel)" agents={specialists} latestByAgent={latestByAgent} />
@@ -83,7 +83,7 @@ function AgentGroup({ title, agents, latestByAgent }: { title: string; agents: s
   if (agents.length === 0) return null;
   return (
     <div>
-      <div className="text-[11px] font-medium text-[color:var(--ink-faint)] mb-2 tracking-wide uppercase">{title}</div>
+      <div className="text-[11px] font-medium text-stone-500 mb-2 tracking-wide uppercase">{title}</div>
       <div className="flex flex-wrap gap-2">
         {agents.map((name) => {
           const ev = latestByAgent.get(name);
@@ -96,8 +96,8 @@ function AgentGroup({ title, agents, latestByAgent }: { title: string; agents: s
               title={ev?.detail}
             >
               <span className={`inline-block h-2 w-2 rounded-full ${statusColor(ev?.status)}`} />
-              <span className="text-sm font-medium text-[color:var(--ink)]">{meta.label}</span>
-              <span className="text-xs text-[color:var(--ink-faint)]">{statusLabel(ev?.status)}</span>
+              <span className="text-sm font-medium text-stone-900">{meta.label}</span>
+              <span className="text-xs text-stone-500">{statusLabel(ev?.status)}</span>
             </div>
           );
         })}
