@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import type { Destination, EarthGlobeHandle } from "@/components/landing/EarthGlobe";
-import { VoiceButton } from "@/components/voice/VoiceButton";
+import { VoicePanel } from "@/components/voice/VoicePanel";
 
 const EarthGlobe = dynamic(
   () => import("@/components/landing/EarthGlobe").then((m) => m.EarthGlobe as unknown as React.ComponentType<Record<string, unknown>>),
@@ -138,7 +138,7 @@ export default function Landing() {
         plan · verify · self-correct
       </footer>
 
-      <VoiceButton defaultDestination="Japan" />
+      <VoicePanel variant="slim" defaultDestination="Japan" />
     </div>
   );
 }

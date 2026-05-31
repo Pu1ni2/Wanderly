@@ -5,7 +5,7 @@ import { ChatInput } from "@/components/ChatInput";
 import { AgentActivity } from "@/components/AgentActivity";
 import { ItineraryView } from "@/components/ItineraryView";
 import { AgentStatusProvider, useAgentStatus } from "@/components/avatars/AgentStatusContext";
-import { VoiceButton } from "@/components/voice/VoiceButton";
+import { VoicePanel } from "@/components/voice/VoicePanel";
 import { usePlanStream } from "@/lib/usePlanStream";
 import type { Theme } from "@/lib/theme";
 
@@ -41,6 +41,18 @@ function Inner({ theme, placeholder, defaultDestination }: Props) {
 
   return (
     <>
+      <div className="mb-6">
+        <VoicePanel
+          accent={theme.accent}
+          defaultDestination={defaultDestination}
+          onPlanTrip={async (args) => {
+            // Reuse the same stream the text input would
+            await plan.start({ query: args.query, budgetUSD: args.budgetUSD });
+            return { itinerary: { destination: defaultDestination, note: "Voice plan in progress" } };
+          }}
+        />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-6 lg:gap-8">
         {/* Left column: input + side info */}
         <motion.div
@@ -143,7 +155,6 @@ function Inner({ theme, placeholder, defaultDestination }: Props) {
         )}
       </AnimatePresence>
 
-      <VoiceButton defaultDestination={defaultDestination} />
     </>
   );
 }
